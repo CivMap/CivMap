@@ -41,7 +41,7 @@ var CivMap = React.createClass({
           <RL.LayersControl.BaseLayer name='full img'>
             <RL.ImageOverlay
               url={'/maps/'+this.props.name+'.png'}
-              bounds={[xz(-1000, -1000), xz(1000, 1000)]}
+              bounds={[xz(-1024-256, -1024), xz(1024+256, 1024+256)]}
               />
           </RL.LayersControl.BaseLayer>
 

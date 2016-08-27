@@ -7,15 +7,20 @@ import struct
 import cairo
 from zipfile import ZipFile
 
-shards = {
-    '44f4b133-a646-461a-a14a-5fd8c8dbc59c': 'tjikko',
-    'a7cbf239-6c11-4146-a715-ef0a9827b4c4': 'dracontas',
-    '197e2c4f-2fd6-464a-8754-53b24d9f7898': 'isolde',
-    'b25abb31-fd1e-499d-a5b5-510f9d2ec501': 'volans',
-    'a358b10c-7041-40c5-ac5e-db5483a9dfc2': 'tigrillo',
-    'a72e4777-ad62-4e3b-a4e0-8cf2d15147ea': 'rokko',
-    'de730958-fa83-4e73-ab7f-bfdab8e27960': 'naunet',
-    '7f03aa4d-833c-4b0c-9d3b-a65a5c6eada0': 'ulca',
+shardIds = {
+    # 'abydos': '',
+    'dracontas': 'a7cbf239-6c11-4146-a715-ef0a9827b4c4',
+    # 'eilon': '',
+    'isolde': '197e2c4f-2fd6-464a-8754-53b24d9f7898',
+    'naunet': 'de730958-fa83-4e73-ab7f-bfdab8e27960',
+    # 'ovid': '',
+    # 'padzahr': '',
+    'rokko': 'a72e4777-ad62-4e3b-a4e0-8cf2d15147ea',
+    # 'sheol': '',
+    'tigrillo': 'a358b10c-7041-40c5-ac5e-db5483a9dfc2',
+    'tjikko': '44f4b133-a646-461a-a14a-5fd8c8dbc59c',
+    'ulca': '7f03aa4d-833c-4b0c-9d3b-a65a5c6eada0',
+    'volans': 'b25abb31-fd1e-499d-a5b5-510f9d2ec501',
 }
 
 region_size = 16*16  # blocks per region edge
@@ -41,13 +46,8 @@ def get_block_color(item_id):
             return (1,0,1)
     return color
 
-def get_shard_id(name):
-    for sid, sname in filter(lambda e: name in e[1].lower(), shards.items()):
-        return sid
-    return None
-
 def civ_world_path(base_path, world_id=None, name=None):
-    if world_id is None: world_id = get_shard_id(name)
+    if world_id is None: world_id = shardIds[name]
     return base_path + '/cache/mc.civcraft.co/' + world_id + '/Overworld (dimension 0)/'
 
 def get_region_file_from_zip(zip_path):
