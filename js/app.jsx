@@ -4,6 +4,8 @@ var L = require('leaflet');
 var RL = require('react-leaflet');
 var geoJsonTestData = require('./GeoJsonTestData.js');
 
+RL.setIconDefaultImagePath('/leaflet-dist/images');
+
 var mcCRS = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0)
 });
