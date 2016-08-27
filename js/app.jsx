@@ -23,8 +23,8 @@ var CivMap = React.createClass({
           crs={mcCRS}
           center={[0, 0]}
           maxBounds={bounds}
-          minZoom={0}
-          maxZoom={0}
+          maxZoom={5}
+          minZoom={-2}
           zoom={0}
           >
         <RL.LayersControl position='topright'>
@@ -33,6 +33,7 @@ var CivMap = React.createClass({
               url={'/tiles/'+this.props.name+'/{z}/{x}_{y}.png'}
               tileSize={256}
               bounds={bounds}
+              minZoom={0}
               maxNativeZoom={0}
               continuousWorld={true}
               />
