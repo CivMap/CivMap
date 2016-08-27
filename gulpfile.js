@@ -3,7 +3,7 @@ var browserify = require('gulp-browserify');
 var rename = require('gulp-rename');
 
 gulp.task('browserify', function() {
-  return gulp.src('src/app.jsx', {read: false})
+  return gulp.src('js/app.jsx', {read: false})
     .pipe(browserify({
       transform : 'reactify',
       extensions: ['.jsx']
@@ -14,8 +14,8 @@ gulp.task('browserify', function() {
 
 gulp.task('watch', function() {
   var jsFiles = [
-    'src/**/*.js',
-    'src/**/*.jsx',
+    'js/**/*.js',
+    'js/**/*.jsx',
   ];
   return gulp.watch(jsFiles, ['browserify']);
 });
