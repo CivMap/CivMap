@@ -1,10 +1,8 @@
 import os
 import json
 from flask import Flask, Response, request
-from flask.ext.bower import Bower
 
 app = Flask(__name__, static_url_path='/', static_folder="static")
-Bower(app)
 app.add_url_rule('/', 'root', lambda: app.send_static_file('index.html'))
 
 @app.route('/<path:path>')

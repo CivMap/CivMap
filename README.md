@@ -3,13 +3,20 @@ Shard maps of the Civcraft: Worlds (3.0) Minecraft server
 
 uses react, leaflet.js, flask
 
-## Installation
-get pip and bower (how to depends on your system), then
+## Install
+get pip and npm (how to depends on your system), then
 
     pip install -r requirements.txt
-    bower install
+    npm install
+    npm install -g gulp
 
-## Running
-get the heroku command line client, then
+## Develop
+open `static/index.html` in your favorite browser
+run `gulp watch`, now edits to any file in `src/`
+trigger a rebuild of `static/bundle.js`
+
+## Deploy
+get the heroku command line client,
+run `gulp browserify` to create `static/bundle.js`, then
 
     heroku local web
