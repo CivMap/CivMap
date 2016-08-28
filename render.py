@@ -3,6 +3,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+import json
 import struct
 import cairo
 from zipfile import ZipFile
@@ -66,11 +67,14 @@ def get_bounds(world_path=None, regions=None):
 
 
 class Renderer(object):
-    def __init__(self, world_path, get_pixel_color):
+    def __init__(self, world_path, get_pixel_color=None, meta_path='.', quiet=False):
         self.world_path = world_path
         self.get_pixel_color = get_pixel_color
+        self.meta_path = meta_path
+        self.quiet = quiet
 
     def render_map(self, img_path, print_progress=True):
+        self.qprint('Rendering full map to', img_path)
         regions = get_world_regions(self.world_path)
         min_x, min_z, max_x, max_z = get_bounds(regions=regions)
         surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, max_x - min_x, max_z - min_z)
@@ -82,7 +86,7 @@ class Renderer(object):
         for rn, (rx, rz) in enumerate(regions):
             if print_progress and last_progress + 3 < time.time():
                 last_progress += 3
-                print('%i/%i regions' % (rn, len(regions)))
+                self.qprint('%i/%i regions' % (rn, len(regions)))
 
             region_file = get_region_file_from_zip(self.world_path + '/%i,%i.zip' % (rx, rz))
             for z in range(rz*region_size, (rz+1)*region_size):
@@ -97,6 +101,7 @@ class Renderer(object):
         surf.write_to_png(img_path)
 
     def render_tiles(self, tiles_path, print_progress=True):
+        self.qprint('Rendering tiles to', tiles_path)
         regions = get_world_regions(self.world_path)
         os.makedirs(tiles_path, exist_ok=True)
 
@@ -104,7 +109,8 @@ class Renderer(object):
         for rn, (rx, rz) in enumerate(regions):
             if print_progress and last_progress + 3 < time.time():
                 last_progress += 3
-                print('%i/%i tiles' % (rn, len(regions)))
+                self.qprint('%i/%i tiles' % (rn, len(regions)))
+            # TODO skip if this has been rendered recently (metadata)
             tile_path = '%s/%i_%i.png' % (tiles_path, rx, rz)
             self.render_tile(rx, rz, tile_path)
 
@@ -123,6 +129,23 @@ class Renderer(object):
                 ctx.fill()
 
         surf.write_to_png(tile_path)
+
+    def write_map_metadata(self):
+        json_path = self.meta_path + '/map.json'
+        self.qprint('Writing map metadata to', json_path)
+        min_x, min_z, max_x, max_z = get_bounds(self.world_path)
+        os.makedirs(self.meta_path, exist_ok=True)
+        data = {
+            'min_x': min_x,
+            'min_z': min_z,
+            'max_x': max_x,
+            'max_z': max_z,
+        }
+        json.dump(data, open(json_path, 'w'))
+
+    def qprint(self, *args, **kwargs):
+        if self.quiet:  return
+        print(*args, **kwargs)
 
 
 def block_color(column, x, z):
@@ -144,3 +167,59 @@ def block_color(column, x, z):
         b = b*.6 + .4
 
     return r, g, b
+
+
+def usage():
+    print('Args: [-h] [-t] [-f] [-m] [-q] <world name> [world path]')
+    print('-t   render tiles')
+    print('-f   render full map image')
+    print('-m   write metadata')
+    print('-q   do not print activity messages')
+    print('-h   show this help and quit')
+    print('you can pass multiple flags per arg: -q -mtf')
+    return 1
+
+def main(*args):
+    if len(args) <= 1 or '--help' in args:
+        return usage()
+    args = list(args)
+
+    flags = ''
+    while '-' == args[1][0]:
+        flags += args[1][1:]
+        del args[1]
+
+    if 'h' in flags:
+        return usage()
+
+    quiet = 'q' in flags
+
+    world_name = args[1]
+    try:
+        world_path = args[2]
+    except IndexError:
+        voxelmap_path = os.path.expanduser('~/.minecraft/mods/VoxelMods/voxelMap/')
+        world_path = civ_world_path(voxelmap_path, name=world_name)
+
+    full_map_path = 'static/maps/%s.png' % world_name
+    tiles_path = 'static/tiles/%s/0/' % world_name
+    meta_path = 'static/meta/%s/' % world_name
+
+    r = Renderer(world_path, block_color, meta_path, quiet)
+
+    if 'm' in flags:
+        r.write_map_metadata()
+
+    if 't' in flags:
+        r.render_tiles(tiles_path)
+
+    if 'f' in flags:
+        r.render_map(full_map_path)
+
+    if not quiet:
+        print_missing_blocks()
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(*sys.argv))
