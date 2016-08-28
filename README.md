@@ -1,7 +1,7 @@
 # CivMap
 Shard maps of the Civcraft: Worlds (3.0) Minecraft server
 
-uses react, leaflet.js, flask
+uses react, leaflet.js, flask, cairo
 
 ## Install
 get pip and npm (how to depends on your system), then
@@ -10,13 +10,15 @@ get pip and npm (how to depends on your system), then
     npm install
     npm install -g gulp
 
-## Develop
-open `static/index.html` in your favorite browser
-run `gulp watch`, now edits to any file in `src/`
-trigger a rebuild of `static/bundle.js`
+## Running
+create `static/bundle.js`:
 
-## Deploy
-get the heroku command line client,
-run `gulp browserify` to create `static/bundle.js`, then
+    gulp browserify
 
-    heroku local web
+start the web server:
+
+    gunicorn -w 1 app:app --log-file=-
+    # or heroku local web, if you have heroku installed
+
+you can run `gulp watch` to automatically trigger a
+rebuild of `static/bundle.js` when editing any file in `js/`
