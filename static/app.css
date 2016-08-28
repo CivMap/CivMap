@@ -1,5 +1,6 @@
-.map {
-    margin: auto;
-    width: 700px;
-    height: 700px;
+html, body, #content, .map {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
