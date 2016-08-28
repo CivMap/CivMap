@@ -56,23 +56,59 @@ def get_region_file_from_zip(zip_path):
 def get_world_regions(world_path):
     return [tuple(map(int, region[:-4].split(','))) for region in os.listdir(world_path)]
 
+def get_bounds(world_path=None, regions=None):
+    if regions is None: regions = get_world_regions(world_path)
+    min_x = region_size * min(x for x,y in regions)
+    min_z = region_size * min(z for x,z in regions)
+    max_x = region_size * (max(x for x,y in regions) + 1)
+    max_z = region_size * (max(z for x,z in regions) + 1)
+    return min_x, min_z, max_x, max_z
 
-class TileRenderer(object):
-    def __init__(self, world_path, tiles_path):
+
+class Renderer(object):
+    def __init__(self, world_path, get_pixel_color):
         self.world_path = world_path
-        self.tiles_path = tiles_path
-        os.makedirs(self.tiles_path, exist_ok=True)
+        self.get_pixel_color = get_pixel_color
 
-    def render_tiles(self, print_progress=True):
+    def render_map(self, img_path, print_progress=True):
         regions = get_world_regions(self.world_path)
+        min_x, min_z, max_x, max_z = get_bounds(regions=regions)
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, max_x - min_x, max_z - min_z)
+        ctx = cairo.Context(surf)
+        ctx.translate(-min_x, -min_z)
+        os.makedirs(os.path.dirname(img_path), exist_ok=True)
+
+        last_progress = time.time()
+        for rn, (rx, rz) in enumerate(regions):
+            if print_progress and last_progress + 3 < time.time():
+                last_progress += 3
+                print('%i/%i regions' % (rn, len(regions)))
+
+            region_file = get_region_file_from_zip(self.world_path + '/%i,%i.zip' % (rx, rz))
+            for z in range(rz*region_size, (rz+1)*region_size):
+                for x in range(rx*region_size, (rx+1)*region_size):
+                    column = region_file.read(17)
+                    if column[0] == 0: continue  # no data present
+
+                    ctx.set_source_rgba(*self.get_pixel_color(column, x, z))
+                    ctx.rectangle(x, z, 1, 1)
+                    ctx.fill()
+
+        surf.write_to_png(img_path)
+
+    def render_tiles(self, tiles_path, print_progress=True):
+        regions = get_world_regions(self.world_path)
+        os.makedirs(tiles_path, exist_ok=True)
+
         last_progress = time.time()
         for rn, (rx, rz) in enumerate(regions):
             if print_progress and last_progress + 3 < time.time():
                 last_progress += 3
                 print('%i/%i tiles' % (rn, len(regions)))
-            self.render_tile(rx, rz)
+            tile_path = '%s/%i_%i.png' % (tiles_path, rx, rz)
+            self.render_tile(rx, rz, tile_path)
 
-    def render_tile(self, rx, rz):
+    def render_tile(self, rx, rz, tile_path):
         region_file = get_region_file_from_zip(self.world_path + '/%i,%i.zip' % (rx, rz))
         surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, region_size, region_size)
         ctx = cairo.Context(surf)
@@ -86,25 +122,25 @@ class TileRenderer(object):
                 ctx.rectangle(x, z, 1, 1)
                 ctx.fill()
 
-        surf.write_to_png('%s/%i_%i.png' % (self.tiles_path, rx, rz))
+        surf.write_to_png(tile_path)
 
-class BlockRenderer(TileRenderer):
-    def get_pixel_color(self, column, x, z):
-        level1, level2, level3, level4, biome = struct.unpack('>IIIIB', column)
 
-        block_id = level1 >> 8 & 0xffff
-        y = level1 >> 24
-        if block_id == 0:
-            block_id = level4 >> 8 & 0xffff
-            y = level4 >> 24
+def block_color(column, x, z):
+    level1, level2, level3, level4, biome = struct.unpack('>IIIIB', column)
 
-        shade = 1 - (((256-y)/4)%3)*.02
+    block_id = level1 >> 8 & 0xffff
+    y = level1 >> 24
+    if block_id == 0:
+        block_id = level4 >> 8 & 0xffff
+        y = level4 >> 24
+
+    shade = 1 - (((256-y)/4)%3)*.02
+    r, g, b = get_block_color(block_id)
+    r, g, b = r * shade, g * shade, b * shade
+
+    if level2:  # underwater
+        block_id = level2 >> 8 & 0xffff
         r, g, b = get_block_color(block_id)
-        r, g, b = r * shade, g * shade, b * shade
+        b = b*.6 + .4
 
-        if level2:  # underwater
-            block_id = level2 >> 8 & 0xffff
-            r, g, b = get_block_color(block_id)
-            b = b*.6 + .4
-
-        return r, g, b
+    return r, g, b
