@@ -66,6 +66,7 @@ class CivMap extends React.Component {
           onmoveend={this.onmoveend}
           >
         <RL.LayersControl position='topright'>
+
           <RL.LayersControl.BaseLayer name='tiles' checked={true}>
             <RL.TileLayer
               attribution={attribution}
@@ -80,30 +81,39 @@ class CivMap extends React.Component {
               />
           </RL.LayersControl.BaseLayer>
 
-          <RL.LayersControl.BaseLayer name='full img'>
-            <RL.ImageOverlay
-              url={dataRoot+'maps/'+this.props.name+'.png'}
-              bounds={this.state.bounds}
-              />
-          </RL.LayersControl.BaseLayer>
+          {
+            this.state.bounds ?
+              <RL.LayersControl.BaseLayer name='full img'>
+                <RL.ImageOverlay
+                  url={dataRoot+'maps/'+this.props.name+'.png'}
+                  bounds={this.state.bounds}
+                  />
+              </RL.LayersControl.BaseLayer>
+            : []
+          }
 
           <RL.LayersControl.Overlay name='geojson' checked={true}>
             <RL.GeoJson data={geoJsonTestData} />
           </RL.LayersControl.Overlay>
+
           <RL.LayersControl.Overlay name='marker' checked={true}>
             <RL.LayerGroup>
+
               <RL.Marker position={xz(775, -76)} title='Aquila'>
                 <RL.Popup>
                   <span>Aquila center</span>
                 </RL.Popup>
               </RL.Marker>
+
               <RL.Marker position={[0, 0]} title={this.props.name}>
                 <RL.Popup>
                   <span>Center of {this.props.name}</span>
                 </RL.Popup>
               </RL.Marker>
+
             </RL.LayerGroup>
           </RL.LayersControl.Overlay>
+
         </RL.LayersControl>
       </RL.Map>
     );
