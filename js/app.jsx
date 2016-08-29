@@ -69,7 +69,6 @@ class CivMap extends React.Component {
               attribution={attribution}
               ref={(ref) => {if (ref) this.tiles = ref.leafletElement}}
               url={dataRoot+'tiles/'+this.props.name+'/{z}_{x}_{y}.png'}
-              errorTileUrl='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
               tileSize={256}
               bounds={this.state.bounds}
               minZoom={0}
