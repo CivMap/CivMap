@@ -1,3 +1,4 @@
+var jQuery = require('jquery');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var L = require('leaflet');
@@ -14,39 +15,71 @@ function xz(x, z) {
   return [z, x];
 }
 
-var CivMap = React.createClass({
-  render: function() {
-    var bounds = [xz(-1280, -1280), xz(1280, 1280)];
+function pos2hash(leaf) {
+  var center = leaf.getCenter();
+  return  '' + leaf.getZoom() + '/' + center.lng + '/' + center.lat;
+}
+
+function hash2pos(hash) {
+  if (!hash) return {x: 0, z: 0, zoom: 0};
+  var [zoom, x, z] = hash.slice(1).split('/', 3);
+  return {x: parseFloat(x), z: parseFloat(z), zoom: parseFloat(zoom)};
+}
+
+class CivMap extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      bounds: null,
+    };
+  }
+
+  componentDidMount() {
+    jQuery.getJSON('meta/'+this.props.name+'/map.json', function(data) {
+      var bounds = [xz(data.min_x, data.min_z), xz(data.max_x, data.max_z)];
+      this.setState({bounds: bounds});
+    }.bind(this));
+  }
+
+  onmoveend(o) {
+    location.hash = pos2hash(o.target);
+  }
+
+  render() {
     return (
       <RL.Map
           className="map"
           crs={mcCRS}
-          center={[0, 0]}
-          maxBounds={bounds}
+          center={xz(this.props.pos.x, this.props.pos.z)}
+          maxBounds={this.state.bounds}
           maxZoom={5}
-          minZoom={-2}
-          zoom={0}
+          minZoom={-3}
+          zoom={this.props.pos.zoom}
+          onmoveend={this.onmoveend}
           >
         <RL.LayersControl position='topright'>
           <RL.LayersControl.BaseLayer name='tiles' checked={true}>
             <RL.TileLayer
+              attribution='<a href="https://github.com/Gjum/civmap">github.com/Gjum/civmap</a>'
+              ref={(ref) => {if (ref) this.tiles = ref.leafletElement}}
               url={'/tiles/'+this.props.name+'/{z}/{x}_{y}.png'}
               tileSize={256}
-              bounds={bounds}
+              bounds={this.state.bounds}
               minZoom={0}
               maxNativeZoom={0}
               continuousWorld={true}
               />
           </RL.LayersControl.BaseLayer>
+
           <RL.LayersControl.BaseLayer name='full img'>
             <RL.ImageOverlay
               url={'/maps/'+this.props.name+'.png'}
-              bounds={[xz(-1024-256, -1024), xz(1024+256, 1024+256)]}
+              bounds={this.state.bounds}
               />
           </RL.LayersControl.BaseLayer>
 
           <RL.LayersControl.Overlay name='geojson' checked={true}>
-            <RL.GeoJson data={this.props.geojson} />
+            <RL.GeoJson data={geoJsonTestData} />
           </RL.LayersControl.Overlay>
           <RL.LayersControl.Overlay name='marker' checked={true}>
             <RL.LayerGroup>
@@ -66,9 +99,9 @@ var CivMap = React.createClass({
       </RL.Map>
     );
   }
-});
+}
 
 ReactDOM.render(
-  <CivMap name='naunet' geojson={geoJsonTestData} />,
+  <CivMap name='naunet' pos={hash2pos(location.hash)} />,
   document.getElementById('content')
 );
