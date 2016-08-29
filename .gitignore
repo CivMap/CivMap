@@ -1,5 +1,2 @@
 node_modules
 /static/bundle.js
-/static/maps/
-/static/tiles/
-/static/meta/

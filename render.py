@@ -8,6 +8,8 @@ import struct
 import cairo
 from zipfile import ZipFile
 
+data_root = 'static/data/'
+
 shardIds = {
     # 'abydos': '',
     'dracontas': 'a7cbf239-6c11-4146-a715-ef0a9827b4c4',
@@ -111,7 +113,8 @@ class Renderer(object):
                 last_progress += 3
                 self.qprint('%i/%i tiles' % (rn, len(regions)))
             # TODO skip if this has been rendered recently (metadata)
-            tile_path = '%s/%i_%i.png' % (tiles_path, rx, rz)
+            # TODO for now fixed zoom of 0
+            tile_path = '%s/0_%i_%i.png' % (tiles_path, rx, rz)
             self.render_tile(rx, rz, tile_path)
 
     def render_tile(self, rx, rz, tile_path):
@@ -201,9 +204,9 @@ def main(*args):
         voxelmap_path = os.path.expanduser('~/.minecraft/mods/VoxelMods/voxelMap/')
         world_path = civ_world_path(voxelmap_path, name=world_name)
 
-    full_map_path = 'static/maps/%s.png' % world_name
-    tiles_path = 'static/tiles/%s/0/' % world_name
-    meta_path = 'static/meta/%s/' % world_name
+    full_map_path = data_root + 'maps/%s.png' % world_name
+    tiles_path = data_root + 'tiles/' + world_name
+    meta_path = data_root + 'meta/' + world_name
 
     r = Renderer(world_path, block_color, meta_path, quiet)
 

@@ -7,6 +7,8 @@ var geoJsonTestData = require('./GeoJsonTestData.js');
 
 RL.setIconDefaultImagePath('/leaflet-dist/images');
 
+const dataRoot = '/data/';
+
 var mcCRS = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0)
 });
@@ -35,7 +37,7 @@ class CivMap extends React.Component {
   }
 
   componentDidMount() {
-    jQuery.getJSON('meta/'+this.props.name+'/map.json', function(data) {
+    jQuery.getJSON(dataRoot+'meta/'+this.props.name+'/map.json', function(data) {
       var bounds = [xz(data.min_x, data.min_z), xz(data.max_x, data.max_z)];
       this.setState({bounds: bounds});
     }.bind(this));
@@ -62,7 +64,8 @@ class CivMap extends React.Component {
             <RL.TileLayer
               attribution='<a href="https://github.com/Gjum/civmap">github.com/Gjum/civmap</a>'
               ref={(ref) => {if (ref) this.tiles = ref.leafletElement}}
-              url={'/tiles/'+this.props.name+'/{z}/{x}_{y}.png'}
+              url={dataRoot+'tiles/'+this.props.name+'/{z}_{x}_{y}.png'}
+              errorTileUrl='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
               tileSize={256}
               bounds={this.state.bounds}
               minZoom={0}
@@ -73,7 +76,7 @@ class CivMap extends React.Component {
 
           <RL.LayersControl.BaseLayer name='full img'>
             <RL.ImageOverlay
-              url={'/maps/'+this.props.name+'.png'}
+              url={dataRoot+'maps/'+this.props.name+'.png'}
               bounds={this.state.bounds}
               />
           </RL.LayersControl.BaseLayer>
