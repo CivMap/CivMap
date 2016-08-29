@@ -7,6 +7,10 @@ var geoJsonTestData = require('./GeoJsonTestData.js');
 
 RL.setIconDefaultImagePath('/leaflet-dist/images');
 
+const attribution = '<a href="https://github.com/CivMap">Civcraft Mapping Agency</a>'
+  + ' | Visit civmap.herokuapp.com'
+  + ' | <a href="https://github.com/CivMap/civmap">contribute</a>';
+
 const dataRoot = '/data/';
 
 var mcCRS = L.extend({}, L.CRS.Simple, {
@@ -62,7 +66,7 @@ class CivMap extends React.Component {
         <RL.LayersControl position='topright'>
           <RL.LayersControl.BaseLayer name='tiles' checked={true}>
             <RL.TileLayer
-              attribution='<a href="https://github.com/Gjum/civmap">github.com/Gjum/civmap</a>'
+              attribution={attribution}
               ref={(ref) => {if (ref) this.tiles = ref.leafletElement}}
               url={dataRoot+'tiles/'+this.props.name+'/{z}_{x}_{y}.png'}
               errorTileUrl='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
