@@ -13,6 +13,8 @@ const attribution = '<a href="https://github.com/CivMap">Civcraft Mapping Agency
 
 const dataRoot = '/data/';
 
+const emptyImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
 var mcCRS = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0)
 });
@@ -69,6 +71,7 @@ class CivMap extends React.Component {
               attribution={attribution}
               ref={(ref) => {if (ref) this.tiles = ref.leafletElement}}
               url={dataRoot+'tiles/'+this.props.name+'/{z}_{x}_{y}.png'}
+              errorTileUrl={emptyImg}
               tileSize={256}
               bounds={this.state.bounds}
               minZoom={0}
