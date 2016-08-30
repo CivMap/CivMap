@@ -23,34 +23,46 @@ function xz(x, z) {
   return [z, x];
 }
 
-function pos2hash(leaf) {
+function viewToHash(leaf, worldName) {
   var center = leaf.getCenter();
-  return  '' + leaf.getZoom() + '/' + center.lng + '/' + center.lat;
+  return  '' + worldName + '/' + center.lng + 'x/' + center.lat + 'z/' + leaf.getZoom();
 }
 
-function hash2pos(hash) {
-  if (!hash) return {x: 0, z: 0, zoom: 0};
-  var [zoom, x, z] = hash.slice(1).split('/', 3);
-  return {x: parseFloat(x), z: parseFloat(z), zoom: parseFloat(zoom)};
+function hashToView(hash) {
+  if (!hash) return {worldName: 'dracontas', x: 0, z: 0, zoom: 0}; // default world if no hash
+  var [worldName, x, z, zoom] = hash.slice(1).split('/', 4)
+    .concat([0,0,0]); // default coords/zoom if not in url
+  return {worldName: worldName, x: parseFloat(x), z: parseFloat(z), zoom: parseFloat(zoom)};
+}
+
+function makeBounds(bounds) {
+  return[xz(bounds.min_x, bounds.min_z), xz(bounds.max_x, bounds.max_z)];
+}
+
+function getWorld(props, worldName, defaultWorld) {
+  if (!worldName) return defaultWorld || props.worlds[0];
+  var activeWorld = props.worlds.filter((w) => w.name === worldName)[0];
+  if (!activeWorld) return defaultWorld || props.worlds[0]; // unknown world
+  return activeWorld;
 }
 
 class CivMap extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      bounds: null,
+      activeWorld: getWorld(props, props.initialView.worldName),
     };
   }
 
-  componentDidMount() {
-    jQuery.getJSON(dataRoot+'meta/'+this.props.name+'/map.json', function(data) {
-      var bounds = [xz(data.min_x, data.min_z), xz(data.max_x, data.max_z)];
-      this.setState({bounds: bounds});
-    }.bind(this));
+  onbaselayerchange(o) {
+    console.log('onbaselayerchange', o.name, o);
+    this.setState({activeWorld: getWorld(this.props, o.name, this.state.activeWorld)});
+    this.updateHash(o);
   }
 
-  onmoveend(o) {
-    location.hash = pos2hash(o.target);
+  updateHash(o) {
+    if (this.state.activeWorld && 'name' in this.state.activeWorld)
+      location.hash = viewToHash(o.target, this.state.activeWorld.name);
   }
 
   render() {
@@ -58,60 +70,36 @@ class CivMap extends React.Component {
       <RL.Map
           className="map"
           crs={mcCRS}
-          center={xz(this.props.pos.x, this.props.pos.z)}
-          maxBounds={this.state.bounds}
+          maxBounds={makeBounds(this.state.activeWorld.bounds)}
+          center={xz(this.props.initialView.x, this.props.initialView.z)}
+          zoom={this.props.initialView.zoom}
           maxZoom={5}
           minZoom={0}
-          zoom={this.props.pos.zoom}
-          onmoveend={this.onmoveend}
+          onmoveend={this.updateHash.bind(this)}
+          onbaselayerchange={this.onbaselayerchange.bind(this)}
           >
         <RL.LayersControl position='topright'>
 
-          <RL.LayersControl.BaseLayer name='tiles' checked={true}>
-            <RL.TileLayer
-              attribution={attribution}
-              ref={(ref) => {if (ref) this.tiles = ref.leafletElement}}
-              url={dataRoot+'tiles/'+this.props.name+'/{x}_{y}.png'}
-              errorTileUrl={emptyImg}
-              tileSize={256}
-              bounds={this.state.bounds}
-              minZoom={0}
-              maxNativeZoom={0}
-              continuousWorld={true}
-              />
-          </RL.LayersControl.BaseLayer>
-
-          {
-            this.state.bounds ?
-              <RL.LayersControl.BaseLayer name='full img'>
-                <RL.ImageOverlay
-                  url={dataRoot+'maps/'+this.props.name+'.png'}
-                  bounds={this.state.bounds}
+          { this.props.worlds.map((world) =>
+              <RL.LayersControl.BaseLayer name={world.name}
+                  key={'tilelayer-' + world.name}
+                  checked={world.name === this.state.activeWorld.name}>
+                <RL.TileLayer
+                  attribution={attribution}
+                  url={dataRoot+'tiles/'+world.name+'/{x}_{y}.png'}
+                  errorTileUrl={emptyImg}
+                  tileSize={256}
+                  bounds={makeBounds(world.bounds)}
+                  minZoom={0}
+                  maxNativeZoom={0}
+                  continuousWorld={true}
                   />
               </RL.LayersControl.BaseLayer>
-            : []
+            )
           }
 
-          <RL.LayersControl.Overlay name='geojson'>
-            <RL.GeoJson data={geoJsonTestData} />
-          </RL.LayersControl.Overlay>
-
-          <RL.LayersControl.Overlay name='marker'>
-            <RL.LayerGroup>
-
-              <RL.Marker position={xz(775, -76)} title='Aquila'>
-                <RL.Popup>
-                  <span>Aquila center</span>
-                </RL.Popup>
-              </RL.Marker>
-
-              <RL.Marker position={[0, 0]} title={this.props.name}>
-                <RL.Popup>
-                  <span>Center of {this.props.name}</span>
-                </RL.Popup>
-              </RL.Marker>
-
-            </RL.LayerGroup>
+          <RL.LayersControl.Overlay name='world center'>
+            <RL.Marker position={[0, 0]} title='world center' />
           </RL.LayersControl.Overlay>
 
         </RL.LayersControl>
@@ -120,7 +108,9 @@ class CivMap extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <CivMap name='naunet' pos={hash2pos(location.hash)} />,
-  document.getElementById('content')
-);
+jQuery.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
+  ReactDOM.render(
+    <CivMap worlds={worlds} initialView={hashToView(location.hash)} />,
+    document.getElementById('civmap')
+  );
+});
