@@ -61,7 +61,7 @@ class CivMap extends React.Component {
           center={xz(this.props.pos.x, this.props.pos.z)}
           maxBounds={this.state.bounds}
           maxZoom={5}
-          minZoom={-3}
+          minZoom={0}
           zoom={this.props.pos.zoom}
           onmoveend={this.onmoveend}
           >
@@ -92,11 +92,11 @@ class CivMap extends React.Component {
             : []
           }
 
-          <RL.LayersControl.Overlay name='geojson' checked={true}>
+          <RL.LayersControl.Overlay name='geojson'>
             <RL.GeoJson data={geoJsonTestData} />
           </RL.LayersControl.Overlay>
 
-          <RL.LayersControl.Overlay name='marker' checked={true}>
+          <RL.LayersControl.Overlay name='marker'>
             <RL.LayerGroup>
 
               <RL.Marker position={xz(775, -76)} title='Aquila'>
