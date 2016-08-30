@@ -1,3 +1,0 @@
-[submodule "static/data"]
-	path = static/data
-	url = https://github.com/civmap/civ3-data.git

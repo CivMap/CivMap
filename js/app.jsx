@@ -11,7 +11,7 @@ const attribution = '<a href="https://github.com/CivMap">Civcraft Mapping Agency
   + ' | Visit civmap.herokuapp.com'
   + ' | <a href="https://github.com/CivMap/civmap">contribute</a>';
 
-const dataRoot = '/data/';
+const dataRoot = 'https://raw.githubusercontent.com/CivMap/civ3-data/master/';
 
 const emptyImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
