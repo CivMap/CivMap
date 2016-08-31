@@ -3,7 +3,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var L = require('leaflet');
 var RL = require('react-leaflet');
-var geoJsonTestData = require('./GeoJsonTestData.js');
 
 RL.setIconDefaultImagePath('/leaflet-dist/images');
 
@@ -25,7 +24,7 @@ function xz(x, z) {
 
 function viewToHash(leaf, worldName) {
   var center = leaf.getCenter();
-  return  '' + worldName + '/' + center.lng + 'x/' + center.lat + 'z/' + leaf.getZoom();
+  return  '' + worldName + '/' + center.lng + 'x/' + center.lat + 'z/' + leaf.getZoom() + 'zoom';
 }
 
 function hashToView(hash) {
