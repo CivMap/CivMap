@@ -97,6 +97,16 @@ class CivMap extends React.Component {
             )
           }
 
+          <RL.LayersControl.Overlay name='world border' checked={true}>
+            <RL.Circle
+              center={[0, 0]}
+              radius={this.state.activeWorld.radius}
+              color='#ff8888'
+              stroke={true}
+              fill={false}
+              />
+          </RL.LayersControl.Overlay>
+
           <RL.LayersControl.Overlay name='world center'>
             <RL.Marker position={[0, 0]} title='world center' />
           </RL.LayersControl.Overlay>
@@ -108,6 +118,7 @@ class CivMap extends React.Component {
 }
 
 jQuery.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
+  worlds = worlds.filter((w) => 'bounds' in w); // ignore incomplete world data
   ReactDOM.render(
     <CivMap worlds={worlds} initialView={hashToView(location.hash)} />,
     document.getElementById('civmap')
