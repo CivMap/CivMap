@@ -8,7 +8,7 @@ import struct
 import cairo
 from zipfile import ZipFile
 
-data_root = 'static/data/'
+data_root = 'static/civ3-data/'
 
 # spawn: ba0cfdfb-4857-4efb-b516-0f5876d460d3
 shardIds = {
@@ -133,18 +133,27 @@ class Renderer(object):
 
         surf.write_to_png(tile_path)
 
-    def write_map_metadata(self):
-        json_path = self.meta_path + '/map.json'
-        self.qprint('Writing map metadata to', json_path)
+    def write_map_metadata(self, world_name):
+        json_path = self.meta_path + '/worlds.json'
+        self.qprint('Writing map metadata for', world_name, 'to', json_path)
         min_x, min_z, max_x, max_z = get_bounds(self.world_path)
         os.makedirs(self.meta_path, exist_ok=True)
-        data = {
+
+        try:
+            worlds_data = json.load(open(json_path))
+            data = [d for d in worlds_data if d['name'] == world_name][0]
+        except:
+            data = {'name': world_name}
+            worlds_data = [data]
+
+        data['bounds'] = {
             'min_x': min_x,
             'min_z': min_z,
             'max_x': max_x,
             'max_z': max_z,
         }
-        json.dump(data, open(json_path, 'w'))
+
+        json.dump(worlds_data, open(json_path, 'w'), indent='    ', sort_keys=True)
 
     def qprint(self, *args, **kwargs):
         if self.quiet:  return
@@ -206,12 +215,12 @@ def main(*args):
 
     full_map_path = data_root + 'maps/%s.png' % world_name
     tiles_path = data_root + 'tiles/' + world_name
-    meta_path = data_root + 'meta/' + world_name
+    meta_path = data_root + 'meta/'
 
     r = Renderer(world_path, block_color, meta_path, quiet)
 
     if 'm' in flags:
-        r.write_map_metadata()
+        r.write_map_metadata(world_name)
 
     if 't' in flags:
         r.render_tiles(tiles_path)
