@@ -197,7 +197,7 @@ def main(*args):
     args = list(args)
 
     flags = ''
-    while '-' == args[1][0]:
+    while len(args) > 1 and '-' == args[1][0]:
         flags += args[1][1:]
         del args[1]
 
