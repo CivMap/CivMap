@@ -14,14 +14,22 @@
     }
     body {
       position: fixed;
+      background-image: url(/img/void.png);
+      background-color: #000;
+    }
+    .leaflet-container {
+    	background: none;
     }
     #loading-screen {
+    	background: transparent;
       padding: 1em;
     }
     #loading-message {
       max-width: 500px;
       margin: auto;
       padding: 1em;
+      color: #fff;
+      background-color: rgba(0,0,0, .5);
     }
     .leaflet-tile {
       image-rendering: pixelated;
