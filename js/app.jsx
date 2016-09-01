@@ -38,10 +38,10 @@ function makeBounds(bounds) {
   return[xz(bounds.min_x, bounds.min_z), xz(bounds.max_x, bounds.max_z)];
 }
 
-function getWorld(props, worldName, defaultWorld) {
-  if (!worldName) return defaultWorld || props.worlds[0];
-  var activeWorld = props.worlds.filter((w) => w.name === worldName)[0];
-  if (!activeWorld) return defaultWorld || props.worlds[0]; // unknown world
+function getWorld(worlds, worldName, defaultWorld) {
+  if (!worldName) return defaultWorld || worlds[0];
+  var activeWorld = worlds.filter(w => w.name === worldName)[0];
+  if (!activeWorld) return defaultWorld || worlds[0]; // unknown world
   return activeWorld;
 }
 
@@ -49,13 +49,12 @@ class CivMap extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeWorld: getWorld(props, props.initialView.worldName),
+      activeWorld: getWorld(props.worlds, props.initialView.worldName),
     };
   }
 
   onbaselayerchange(o) {
-    console.log('onbaselayerchange', o.name, o);
-    this.setState({activeWorld: getWorld(this.props, o.name, this.state.activeWorld)});
+    this.setState({activeWorld: getWorld(this.props.worlds, o.name, this.state.activeWorld)});
     this.updateHash(o);
   }
 
