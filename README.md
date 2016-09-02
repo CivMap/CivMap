@@ -8,17 +8,18 @@ get pip and npm (how to depends on your system), then
 
     pip install -r requirements.txt
     npm install
-    npm install -g gulp
 
-## Running
-create `static/bundle.js`:
+open `static/index.html` in your browser
 
-    gulp browserify
+## Develop
+run `npm run watchify` to automatically trigger a
+rebuild of `static/bundle.js` when editing any file in `js/`
 
-start the web server:
+### start the web server
+does not do much right now besides serving the files,
+will be used later for user contributions
+(map data, artistic maps, claims, roads, cities, ...)
 
     gunicorn -w 1 app:app --log-file=-
-    # or heroku local web, if you have heroku installed
-
-you can run `gulp watch` to automatically trigger a
-rebuild of `static/bundle.js` when editing any file in `js/`
+    # or, if you have heroku installed
+    heroku local web
