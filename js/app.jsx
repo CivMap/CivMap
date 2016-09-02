@@ -20,7 +20,14 @@ class CivMap extends React.Component {
     super(props);
     this.state = {
       activeWorld: Util.getWorld(props.worlds, props.initialView.worldName),
+      maps: {},
     };
+  }
+
+  componentWillMount() {
+    Util.getJSON(dataRoot+'meta/maps.json', function(maps) {
+      this.setState({maps: maps});
+    }.bind(this));
   }
 
   onbaselayerchange(o) {
@@ -34,8 +41,11 @@ class CivMap extends React.Component {
   }
 
   render() {
-    var maxBounds = L.latLngBounds(Util.makeBounds(this.state.activeWorld.bounds));
-    maxBounds.extend(Util.radiusToBounds(this.state.activeWorld.radius));
+    var activeWorld = this.state.activeWorld;
+    var activeWorldMaps = ((this.state.maps || {})[activeWorld.name] || []);
+    var maxBounds = L.latLngBounds(Util.makeBounds(activeWorld.bounds));
+    maxBounds.extend(Util.radiusToBounds(activeWorld.radius));
+    activeWorldMaps.map(m => maxBounds.extend(Util.makeBounds(m.bounds)));
     return (
       <RL.Map
           className="map"
@@ -53,7 +63,7 @@ class CivMap extends React.Component {
           { this.props.worlds.map((world) =>
               <RL.LayersControl.BaseLayer name={world.name}
                   key={'tilelayer-' + world.name}
-                  checked={world.name === this.state.activeWorld.name}>
+                  checked={world.name === activeWorld.name}>
                 <RL.TileLayer
                   attribution={Util.attribution}
                   url={dataRoot+'tiles/'+world.name+'/{x}_{y}.png'}
@@ -68,10 +78,24 @@ class CivMap extends React.Component {
             )
           }
 
+          { activeWorldMaps.map(m =>
+              <RL.LayersControl.Overlay
+                  key={'full map ' + m.name}
+                  name={'[Full] ' + m.name}
+                  checked={false}
+                  >
+                <RL.ImageOverlay
+                  url={dataRoot+'maps/'+m.url}
+                  bounds={Util.makeBounds(m.bounds)}
+                  />
+              </RL.LayersControl.Overlay>
+            )
+          }
+
           <RL.LayersControl.Overlay name='world border' checked={true}>
             <RL.Circle
               center={[0, 0]}
-              radius={this.state.activeWorld.radius}
+              radius={activeWorld.radius}
               color='#ff8888'
               stroke={true}
               fill={false}
