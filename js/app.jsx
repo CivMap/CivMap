@@ -1,4 +1,3 @@
-var jQuery = require('jquery');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var L = require('leaflet');
@@ -13,6 +12,22 @@ const attribution = '<a href="https://github.com/CivMap">Civcraft Mapping Agency
 const dataRoot = 'https://raw.githubusercontent.com/CivMap/civ3-data/master/';
 
 const emptyImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+function getJSON(url, onData, onErr) {
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.onreadystatechange = function() {
+    if (this.readyState === 4) {
+      if (this.status >= 200 && this.status < 400) {
+        onData(JSON.parse(this.responseText));
+      } else {
+        onErr && onErr(this);
+      }
+    }
+  };
+  request.send();
+  request = null;
+}
 
 var mcCRS = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0)
@@ -116,7 +131,7 @@ class CivMap extends React.Component {
   }
 }
 
-jQuery.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
+getJSON(dataRoot+'meta/worlds.json', function(worlds) {
   worlds = worlds.filter((w) => 'bounds' in w); // ignore incomplete world data
   ReactDOM.render(
     <CivMap worlds={worlds} initialView={hashToView(location.hash)} />,
