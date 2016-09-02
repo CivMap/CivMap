@@ -38,6 +38,10 @@ function makeBounds(bounds) {
   return[xz(bounds.min_x, bounds.min_z), xz(bounds.max_x, bounds.max_z)];
 }
 
+function radiusToBounds(radius) {
+  return[xz(-radius, -radius), xz(radius, radius)];
+}
+
 function getWorld(worlds, worldName, defaultWorld) {
   if (!worldName) return defaultWorld || worlds[0];
   var activeWorld = worlds.filter(w => w.name === worldName)[0];
@@ -52,5 +56,6 @@ module.exports = {
   viewToHash: viewToHash,
   hashToView: hashToView,
   makeBounds: makeBounds,
+  radiusToBounds: radiusToBounds,
   getWorld: getWorld,
 }
