@@ -34,11 +34,13 @@ class CivMap extends React.Component {
   }
 
   render() {
+    var maxBounds = L.latLngBounds(Util.makeBounds(this.state.activeWorld.bounds));
+    maxBounds.extend(Util.radiusToBounds(this.state.activeWorld.radius));
     return (
       <RL.Map
           className="map"
           crs={mcCRS}
-          maxBounds={Util.makeBounds(this.state.activeWorld.bounds)}
+          maxBounds={maxBounds}
           center={Util.xz(this.props.initialView.x, this.props.initialView.z)}
           zoom={this.props.initialView.zoom}
           maxZoom={5}
