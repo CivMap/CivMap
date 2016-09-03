@@ -81,11 +81,11 @@ class CivMap extends React.Component {
           { activeWorldMaps.map(m =>
               <RL.LayersControl.Overlay
                   key={'full map ' + m.name}
-                  name={'[Full] ' + m.name}
+                  name={m.name}
                   checked={false}
                   >
                 <RL.ImageOverlay
-                  url={dataRoot+'maps/'+m.url}
+                  url={m.url}
                   bounds={Util.makeBounds(m.bounds)}
                   />
               </RL.LayersControl.Overlay>
