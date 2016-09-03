@@ -13,7 +13,7 @@ data_root = 'static/civ3-data/'
 # spawn: ba0cfdfb-4857-4efb-b516-0f5876d460d3
 shardIds = {
     'abydos': '182702a7-ea3f-41de-a2d3-c046842d5e74',
-    'dracontas': 'a7cbf239-6c11-4146-a715-ef0a9827b4c4',
+    'drakontas': 'a7cbf239-6c11-4146-a715-ef0a9827b4c4',
     'eilon': 'a358b10c-7041-40c5-ac5e-db5483a9dfc2',
     'isolde': '197e2c4f-2fd6-464a-8754-53b24d9f7898',
     'naunet': 'de730958-fa83-4e73-ab7f-bfdab8e27960',
