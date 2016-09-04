@@ -43,8 +43,10 @@ class CivMap extends React.Component {
   }
 
   updateHash(o) {
-    if (this.state.activeWorld && 'name' in this.state.activeWorld)
-      location.hash = Util.viewToHash(o.target, this.state.activeWorld.name);
+    if (this.state.activeWorld && 'name' in this.state.activeWorld) {
+      const stateUrl = '#' + Util.viewToHash(o.target, this.state.activeWorld.name);
+      history.replaceState({}, '', stateUrl);
+    }
   }
 
   onmousemove(o) {
