@@ -5,8 +5,6 @@ var RL = require('react-leaflet');
 
 var Util = require('./util.js');
 
-RL.setIconDefaultImagePath('/leaflet-dist/images');
-
 const dataRoot = 'https://raw.githubusercontent.com/CivMap/civ3-data/master/';
 
 const errorTileUrl = '/no-tile.png';
