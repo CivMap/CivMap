@@ -25,7 +25,7 @@ class CivMap extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeWorld: Util.getWorld(props.worlds, props.initialView.worldName),
+      view: Util.hashToView(location.hash),
       maps: {},
       cursorPos: L.latLng(0,0),
     };
@@ -35,16 +35,21 @@ class CivMap extends React.Component {
     Util.getJSON(dataRoot+'meta/maps.json', function(maps) {
       this.setState({maps: maps});
     }.bind(this));
+    if ("onhashchange" in window) {
+      window.onhashchange = () => {
+        this.setState({view: Util.hashToView(location.hash)});
+      }
+    }
   }
 
   onbaselayerchange(o) {
-    this.setState({activeWorld: Util.getWorld(this.props.worlds, o.name, this.state.activeWorld)});
+    this.state.view.worldName = o.name;
+    this.setState({view: this.state.view});
     this.updateHash(o);
   }
 
   updateHash(o) {
-    if (this.state.activeWorld && 'name' in this.state.activeWorld)
-      location.hash = Util.viewToHash(o.target, this.state.activeWorld.name);
+    location.hash = Util.viewToHash(o.target, this.state.view.worldName);
   }
 
   onmousemove(o) {
@@ -52,7 +57,7 @@ class CivMap extends React.Component {
   }
 
   render() {
-    var activeWorld = this.state.activeWorld;
+    var activeWorld = Util.getWorld(this.props.worlds, this.state.view.worldName);
     var activeWorldMaps = ((this.state.maps || {})[activeWorld.name] || []);
     var maxBounds = L.latLngBounds(Util.makeBounds(activeWorld.bounds));
     maxBounds.extend(Util.radiusToBounds(activeWorld.radius));
@@ -62,10 +67,11 @@ class CivMap extends React.Component {
           className="map"
           crs={mcCRS}
           maxBounds={maxBounds}
-          center={Util.xz(this.props.initialView.x, this.props.initialView.z)}
-          zoom={this.props.initialView.zoom}
+          center={Util.xz(this.state.view.x, this.state.view.z)}
+          zoom={this.state.view.zoom}
           maxZoom={5}
           minZoom={0}
+          animate={true}
           onmoveend={this.updateHash.bind(this)}
           onbaselayerchange={this.onbaselayerchange.bind(this)}
           onmousemove={this.onmousemove.bind(this)}
@@ -130,7 +136,7 @@ class CivMap extends React.Component {
 Util.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
   worlds = worlds.filter((w) => 'bounds' in w); // ignore incomplete world data
   ReactDOM.render(
-    <CivMap worlds={worlds} initialView={Util.hashToView(location.hash)} />,
+    <CivMap worlds={worlds} />,
     document.getElementById('civmap')
   );
 });
