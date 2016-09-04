@@ -28,7 +28,7 @@ function viewToHash(leaf, worldName) {
 }
 
 function hashToView(hash) {
-  if (!hash) return {worldName: 'dracontas', x: 0, z: 0, zoom: 0}; // default world if no hash
+  if (!hash) return {worldName: null, x: 0, z: 0, zoom: 0};
   var [worldName, x, z, zoom] = hash.slice(1).split('/', 4)
     .concat([0,0,0]); // default coords/zoom if not in url
   return {worldName: worldName, x: parseFloat(x), z: parseFloat(z), zoom: parseFloat(zoom)};
@@ -42,10 +42,9 @@ function radiusToBounds(radius) {
   return[xz(-radius, -radius), xz(radius, radius)];
 }
 
-function getWorld(worlds, worldName, defaultWorld) {
-  if (!worldName) return defaultWorld || worlds[0];
+function getWorld(worlds, worldName) {
   var activeWorld = worlds.filter(w => w.name === worldName)[0];
-  if (!activeWorld) return defaultWorld || worlds[0]; // unknown world
+  if (!activeWorld) return {}; // unknown worldName
   return activeWorld;
 }
 

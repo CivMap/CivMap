@@ -13,6 +13,17 @@ var mcCRS = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0)
 });
 
+class Centered extends React.Component {
+  render() {
+    return (
+      <div className='center-outer full'>
+      <div className='center-middle'>
+      <div className='center-inner'>
+        {this.props.children}
+      </div></div></div>);
+  }
+}
+
 class CoordsDisplay extends React.Component {
   render() {
     const text = 'X ' + parseInt(this.props.cursor.lng)
@@ -25,7 +36,7 @@ class CivMap extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeWorld: Util.getWorld(props.worlds, props.initialView.worldName),
+      view: Util.hashToView(location.hash),
       maps: {},
       cursorPos: L.latLng(0,0),
     };
@@ -38,15 +49,14 @@ class CivMap extends React.Component {
   }
 
   onbaselayerchange(o) {
-    this.setState({activeWorld: Util.getWorld(this.props.worlds, o.name, this.state.activeWorld)});
+    this.state.view.worldName = o.name;
+    this.setState({view: this.state.view});
     this.updateHash(o);
   }
 
   updateHash(o) {
-    if (this.state.activeWorld && 'name' in this.state.activeWorld) {
-      const stateUrl = '#' + Util.viewToHash(o.target, this.state.activeWorld.name);
-      history.replaceState({}, '', stateUrl);
-    }
+    const stateUrl = '#' + Util.viewToHash(o.target, this.state.view.worldName);
+    history.replaceState({}, '', stateUrl);
   }
 
   onmousemove(o) {
@@ -54,18 +64,21 @@ class CivMap extends React.Component {
   }
 
   render() {
-    var activeWorld = this.state.activeWorld;
+    var activeWorld = Util.getWorld(this.props.worlds, this.state.view.worldName);
     var activeWorldMaps = ((this.state.maps || {})[activeWorld.name] || []);
-    var maxBounds = L.latLngBounds(Util.makeBounds(activeWorld.bounds));
-    maxBounds.extend(Util.radiusToBounds(activeWorld.radius));
-    activeWorldMaps.map(m => maxBounds.extend(Util.makeBounds(m.bounds)));
+    var maxBounds = null;
+    if (activeWorld.bounds) {
+      maxBounds = L.latLngBounds(Util.makeBounds(activeWorld.bounds));
+      maxBounds.extend(Util.radiusToBounds(activeWorld.radius));
+      activeWorldMaps.map(m => maxBounds.extend(Util.makeBounds(m.bounds)));
+    }
     return (
       <RL.Map
           className="map"
           crs={mcCRS}
           maxBounds={maxBounds}
-          center={Util.xz(this.props.initialView.x, this.props.initialView.z)}
-          zoom={this.props.initialView.zoom}
+          center={Util.xz(this.state.view.x, this.state.view.z)}
+          zoom={this.state.view.zoom}
           maxZoom={5}
           minZoom={0}
           onmoveend={this.updateHash.bind(this)}
@@ -74,6 +87,15 @@ class CivMap extends React.Component {
           >
 
         <CoordsDisplay cursor={this.state.cursorPos} />
+
+        { activeWorld.bounds ? null :
+            <Centered>
+              <div className='message'>
+                <h1>Unknown world "{this.state.view.worldName}"</h1>
+                <p>Choose a world on the top right</p>
+              </div>
+            </Centered>
+        }
 
         <RL.LayersControl position='topright'>
 
@@ -109,15 +131,18 @@ class CivMap extends React.Component {
             )
           }
 
-          <RL.LayersControl.Overlay name='world border' checked={true}>
-            <RL.Circle
-              center={[0, 0]}
-              radius={activeWorld.radius}
-              color='#ff8888'
-              stroke={true}
-              fill={false}
-              />
-          </RL.LayersControl.Overlay>
+          { activeWorld.radius ?
+              <RL.LayersControl.Overlay name='world border' checked={true}>
+                <RL.Circle
+                  center={[0, 0]}
+                  radius={activeWorld.radius}
+                  color='#ff8888'
+                  stroke={true}
+                  fill={false}
+                  />
+              </RL.LayersControl.Overlay>
+            : null
+          }
 
           <RL.LayersControl.Overlay name='world center'>
             <RL.Marker position={[0, 0]} title='world center' />
@@ -132,7 +157,7 @@ class CivMap extends React.Component {
 Util.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
   worlds = worlds.filter((w) => 'bounds' in w); // ignore incomplete world data
   ReactDOM.render(
-    <CivMap worlds={worlds} initialView={Util.hashToView(location.hash)} />,
+    <CivMap worlds={worlds} />,
     document.getElementById('civmap')
   );
 });

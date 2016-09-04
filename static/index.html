@@ -6,7 +6,7 @@
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
   <style type="text/css">
-    body, #loading-screen, #civmap, .map {
+    body, .full, .map {
       width: 100%;
       height: 100%;
       margin: 0;
@@ -18,18 +18,34 @@
       background-color: #000;
     }
     .leaflet-container {
-    	background: none;
+      background: none;
     }
     #loading-screen {
-    	background: transparent;
+      background: transparent;
       padding: 1em;
     }
-    #loading-message {
-      max-width: 500px;
+    .center-outer {
+      display: table;
+      position: absolute;
+      height: 100%;
+      width: 100%;
+    }
+    .center-middle {
+      display: table-cell;
+      vertical-align: middle;
+    }
+    .center-inner {
+      margin-left: auto;
+      margin-right: auto;
+      width: 300px;
+    }
+    .message {
+      max-width: 300px;
       margin: auto;
       padding: 1em;
       color: #fff;
       background-color: rgba(0,0,0, .5);
+      text-align: center;
     }
     .leaflet-tile {
       image-rendering: pixelated;
@@ -45,12 +61,13 @@
   </style>
 </head>
 <body>
-  <div id="loading-screen">
-    <div id="loading-message">
+  <div id="loading-screen" class="full">
+    <div class="message">
       <h1>Loading...</h1>
       <p>
-        Give it a minute to load for the first time,
-        this map is still in development and not optimized at all.
+        Give it a minute to load for the first time,<br />
+        this map is still in development<br />
+        and not optimized at all.
       </p>
       <p>
         Not loading?
@@ -58,7 +75,7 @@
       </p>
     </div>
   </div>
-  <div id="civmap" style="display:none"></div>
+  <div id="civmap" class="full" style="display:none"></div>
   <script src="bundle.js"></script>
   <script type="text/javascript">
     var loadingElement = document.getElementById('loading-screen');
