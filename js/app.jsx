@@ -15,8 +15,8 @@ var mcCRS = L.extend({}, L.CRS.Simple, {
 
 class CoordsDisplay extends React.Component {
   render() {
-    const text = 'x ' + parseInt(this.props.cursor.lng)
-      + ' ' + parseInt(this.props.cursor.lat) + ' z';
+    const text = 'X ' + parseInt(this.props.cursor.lng)
+      + ' ' + parseInt(this.props.cursor.lat) + ' Z';
     return <div className='coords-display leaflet-control leaflet-control-layers'>{text}</div>;
   }
 }
