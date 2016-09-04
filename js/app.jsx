@@ -105,7 +105,7 @@ class CivMap extends React.Component {
                   checked={world.name === activeWorld.name}>
                 <RL.TileLayer
                   attribution={Util.attribution}
-                  url={dataRoot+'tiles/'+world.name+'/{x}_{y}.png'}
+                  url={dataRoot+'tiles/'+world.name+'/z{z}/{x},{y}.png'}
                   errorTileUrl={errorTileUrl}
                   tileSize={256}
                   bounds={Util.makeBounds(world.bounds)}

@@ -114,7 +114,7 @@ class Renderer(object):
                 last_progress += 3
                 self.qprint('%i/%i tiles' % (rn, len(regions)))
             # TODO skip if this has been rendered recently (metadata)
-            tile_path = '%s/%i_%i.png' % (tiles_path, rx, rz)
+            tile_path = '%s/z0/%i,%i.png' % (tiles_path, rx, rz)
             self.render_tile(rx, rz, tile_path)
 
     def render_tile(self, rx, rz, tile_path):
