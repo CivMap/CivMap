@@ -9,6 +9,9 @@ We still need:
 - VoxelMap cache data for rendering the empty parts of the maps
 - land claims data, preferably the corner coordinates in order
 
+A big thanks to @WaffleStomper for providing the world radii
+and portal coordinates in [a programmer-friendly form](https://github.com/waffle-stomper/WorldBorderViewer/blob/c9314a31a1657723abb787d1d5018ba8d8d06596/forge/src/main/java/wafflestomper/worldborderviewer/WBConfigManager.java#L84)!
+
 ## Install
 Technologies used:
 - React and Leaflet.js for the web interface
