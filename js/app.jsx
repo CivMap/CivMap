@@ -13,12 +13,21 @@ var mcCRS = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0)
 });
 
+class CoordsDisplay extends React.Component {
+  render() {
+    const text = 'x ' + parseInt(this.props.cursor.lng)
+      + ' ' + parseInt(this.props.cursor.lat) + ' z';
+    return <div className='coords-display leaflet-control leaflet-control-layers'>{text}</div>;
+  }
+}
+
 class CivMap extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activeWorld: Util.getWorld(props.worlds, props.initialView.worldName),
       maps: {},
+      cursorPos: L.latLng(0,0),
     };
   }
 
@@ -38,6 +47,10 @@ class CivMap extends React.Component {
       location.hash = Util.viewToHash(o.target, this.state.activeWorld.name);
   }
 
+  onmousemove(o) {
+    this.setState({cursorPos: o.latlng});
+  }
+
   render() {
     var activeWorld = this.state.activeWorld;
     var activeWorldMaps = ((this.state.maps || {})[activeWorld.name] || []);
@@ -55,7 +68,11 @@ class CivMap extends React.Component {
           minZoom={0}
           onmoveend={this.updateHash.bind(this)}
           onbaselayerchange={this.onbaselayerchange.bind(this)}
+          onmousemove={this.onmousemove.bind(this)}
           >
+
+        <CoordsDisplay cursor={this.state.cursorPos} />
+
         <RL.LayersControl position='topright'>
 
           { this.props.worlds.map((world) =>
