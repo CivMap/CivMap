@@ -126,6 +126,7 @@ class CivMap extends React.Component {
                 <RL.ImageOverlay
                   url={m.url}
                   bounds={Util.makeBounds(m.bounds)}
+                  opacity={.5}
                   />
               </RL.LayersControl.Overlay>
             )
