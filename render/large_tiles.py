@@ -23,6 +23,7 @@ def stitch_four(size, x, z, out_path, in_path):
     if os.path.isfile(se_path):
         out.paste(im=Image.open(se_path), box=(size, size))
 
+    out.thumbnail((256, 256))#, Image.NEAREST)
     out.save(out_path, 'PNG')
 
 def stitch_all(out_path, in_path):
