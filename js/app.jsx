@@ -72,6 +72,7 @@ class CivMap extends React.Component {
       maxBounds.extend(Util.radiusToBounds(activeWorld.radius));
       activeWorldMaps.map(m => maxBounds.extend(Util.makeBounds(m.bounds)));
     }
+    var minZoom = -3;
     return (
       <RL.Map
           className="map"
@@ -80,7 +81,7 @@ class CivMap extends React.Component {
           center={Util.xz(this.state.view.x, this.state.view.z)}
           zoom={this.state.view.zoom}
           maxZoom={5}
-          minZoom={0}
+          minZoom={minZoom}
           onmoveend={this.updateHash.bind(this)}
           onbaselayerchange={this.onbaselayerchange.bind(this)}
           onmousemove={this.onmousemove.bind(this)}
@@ -109,7 +110,7 @@ class CivMap extends React.Component {
                   errorTileUrl={errorTileUrl}
                   tileSize={256}
                   bounds={Util.makeBounds(world.bounds)}
-                  minZoom={0}
+                  minZoom={minZoom}
                   maxNativeZoom={0}
                   continuousWorld={true}
                   />
