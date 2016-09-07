@@ -15,11 +15,14 @@ echo deleting old build
 # build
 npm install
 
+# HACK fix image overlay zooming https://github.com/Leaflet/Leaflet/issues/4886
+sed -i 's/offset = this._map._latLngToNewLayerPoint(this._bounds.getNorthWest(), e.zoom, e.center);/offset = this._map._latLngToNewLayerPoint(this._bounds.getSouthWest(), e.zoom, e.center);/' static/bundle.js
+
 echo copying current build
 cp --recursive --dereference static/* gh-pages/
 
 # commit+push
-hash_msg="`git log --oneline -1`"
+hash_msg="`git log master --oneline -1`"
 cd gh-pages/
 git add --all
 git commit -m "build $hash_msg"
