@@ -1,5 +1,5 @@
 const attribution = '<a href="https://github.com/CivMap">Civcraft Mapping Agency</a>'
-  + ' | Visit civmap.herokuapp.com'
+  + ' | Visit civmap.github.io'
   + ' | <a href="https://github.com/CivMap/civmap#contribute">contribute</a>';
 
 function getJSON(url, onData, onErr) {
