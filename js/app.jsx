@@ -92,8 +92,13 @@ class CivMap extends React.Component {
         { activeWorld.bounds ? null :
             <Centered>
               <div className='message'>
-                <h1>Unknown world "{this.state.view.worldName}"</h1>
-                <p>Choose a world on the top right</p>
+                <h1>Choose a world on the top right</h1>
+                <h2>
+                  { this.state.view.worldName ?
+                    'Unknown world "' + this.state.view.worldName + '"'
+                    : ''
+                  }
+                </h2>
               </div>
             </Centered>
         }
