@@ -5,7 +5,7 @@ shard_ids = {
     'eilon': 'a358b10c-7041-40c5-ac5e-db5483a9dfc2',
     'isolde': '197e2c4f-2fd6-464a-8754-53b24d9f7898',
     'naunet': 'de730958-fa83-4e73-ab7f-bfdab8e27960',
-    # 'ovid': '',
+    'ovid': '8ce2e4cd-4bad-4116-a97a-61a20b85853c',
     'padzahr': '7120b7a6-dd21-468c-8cd7-83d96f735589',
     'rokko': 'a72e4777-ad62-4e3b-a4e0-8cf2d15147ea',
     'sheol': 'fc891b9e-4b20-4c8d-8f97-7436383e8105',
