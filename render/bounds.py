@@ -35,10 +35,12 @@ def write_bounds(world_name, regions_path, json_path):
     max_z = region_size * (max(z for x,z in regions) + 1)
 
     try:
-        worlds_data = json.load(open(json_path))
+        with open(json_path) as f:
+            worlds_data = json.load(f)
         world_data = [d for d in worlds_data
                       if d['name'] == world_name][0]
-    except:
+    except Exception as e:
+        print('EXCEPTION', world_name, e)
         world_data = {'name': world_name}
         worlds_data = [world_data]
 
