@@ -21,15 +21,8 @@ def get_region_file_from_zip(zip_path):
     return ZipFile(zip_path).open('data')
 
 def get_world_regions(world_path):
-    return [tuple(map(int, region[:-4].split(','))) for region in os.listdir(world_path)]
-
-def get_bounds(world_path=None, regions=None):
-    if regions is None: regions = get_world_regions(world_path)
-    min_x = region_size * min(x for x,y in regions)
-    min_z = region_size * min(z for x,z in regions)
-    max_x = region_size * (max(x for x,y in regions) + 1)
-    max_z = region_size * (max(z for x,z in regions) + 1)
-    return min_x, min_z, max_x, max_z
+    return [tuple(map(int, region[:-4].split(',')))
+            for region in os.listdir(world_path)]
 
 
 class Renderer(object):
