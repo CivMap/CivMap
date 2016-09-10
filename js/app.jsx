@@ -169,13 +169,25 @@ class CivMap extends React.Component {
   }
 }
 
-Util.getJSON(dataRoot+'meta/tiles.json', function(tilesMeta) {
-  var loadingElement = document.getElementById('loading-screen');
-  loadingElement.parentNode.removeChild(loadingElement);
-  document.getElementById('civmap').style.display = 'block';
-
+const tiles_url = dataRoot + 'meta/tiles.json';
+Util.getJSON(tiles_url, tilesMeta => {
   ReactDOM.render(
     <CivMap tilesMeta={tilesMeta} />,
+    document.getElementById('civmap')
+  );
+}, err_request => {
+  ReactDOM.render(
+    <div className="message">
+      <h1>Error {err_request.status}</h1>
+      <p>
+        Failed loading
+        <a href={tiles_url}>
+          <code>{tiles_url}</code></a>,
+        response:
+      </p>
+      <pre style={{whiteSpace: 'pre-line'}}>
+        {err_request.responseText}</pre>
+    </div>,
     document.getElementById('civmap')
   );
 });
