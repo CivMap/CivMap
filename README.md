@@ -33,3 +33,20 @@ will be used later for user contributions (map data, artistic maps, claims, road
     gunicorn -w 1 app:app --log-file=-
     # or, if you have heroku installed
     heroku local web
+
+## Map data contributors
+A big Thank You to everyone who sent me their VoxelMap cache to fill the empty spots on the maps:
+[ASomb](https://reddit.com/user/AddictiveSombrero),
+[ChezireNeko](https://reddit.com/user/ChezireNeko),
+[JhillOne](https://reddit.com/user/JhillOne),
+[jQjx](https://reddit.com/user/jQjx),
+[Kwikxilver](https://reddit.com/user/Kwikxilver),
+[MattThePapa](https://reddit.com/user/MattThePapa),
+[raceman95](https://reddit.com/user/raceman95),
+[RibaT111](https://reddit.com/user/RibaT111),
+[RonnySpears](https://reddit.com/user/RonnySpears),
+[Searedoriginal](https://reddit.com/user/Searedoriginal),
+[v3n0m95](https://reddit.com/user/v3n0m95),
+[VIDE0HEAD](https://reddit.com/user/VIDE0HEAD),
+[walkersgaming](https://reddit.com/user/walkersgaming),
+[wuphonsreach](https://reddit.com/user/wuphonsreach)
