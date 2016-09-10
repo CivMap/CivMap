@@ -163,6 +163,10 @@ class CivMap extends React.Component {
 
 Util.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
   worlds = worlds.filter((w) => 'bounds' in w); // ignore incomplete world data
+  var loadingElement = document.getElementById('loading-screen');
+  loadingElement.parentNode.removeChild(loadingElement);
+  document.getElementById('civmap').style.display = 'block';
+
   ReactDOM.render(
     <CivMap worlds={worlds} />,
     document.getElementById('civmap')
