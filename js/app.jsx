@@ -49,10 +49,10 @@ class CivMap extends React.Component {
   }
 
   componentWillMount() {
-    Util.getJSON(dataRoot+'meta/world-borders.json', (worldBorders) => {
+    Util.getJSON(dataRoot+'meta/world-borders.json', worldBorders => {
       this.setState({worldBorders: worldBorders});
     });
-    Util.getJSON(dataRoot+'meta/maps.json', (maps) => {
+    Util.getJSON(dataRoot+'meta/maps.json', maps => {
       this.setState({maps: maps});
     });
   }
@@ -114,7 +114,7 @@ class CivMap extends React.Component {
 
         <RL.LayersControl position='topright'>
 
-          { Object.keys(this.props.tilesMeta).map((worldName) =>
+          { Object.keys(this.props.tilesMeta).map(worldName =>
               <RL.LayersControl.BaseLayer name={worldName}
                   key={'tilelayer-' + worldName}
                   checked={worldName === activeWorldName}>
