@@ -34,10 +34,6 @@ function hashToView(hash) {
   return {worldName: worldName, x: parseFloat(x), z: parseFloat(z), zoom: parseFloat(zoom)};
 }
 
-function makeBounds(bounds) {
-  return[xz(bounds.min_x, bounds.min_z), xz(bounds.max_x, bounds.max_z)];
-}
-
 function radiusToBounds(radius) {
   return[xz(-radius, -radius), xz(radius, radius)];
 }
@@ -54,7 +50,6 @@ module.exports = {
   xz: xz,
   viewToHash: viewToHash,
   hashToView: hashToView,
-  makeBounds: makeBounds,
   radiusToBounds: radiusToBounds,
   getWorld: getWorld,
 }

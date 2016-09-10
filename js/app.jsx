@@ -1,3 +1,8 @@
+// what to load when?
+// first check if we can show tiles at all (tiles take long to load)
+// -> do we have tiles for this world? load them now!
+// load all other stuff in the background (radii, map overlays, , ...)
+
 var React = require('react');
 var ReactDOM = require('react-dom');
 var L = require('leaflet');
@@ -37,15 +42,19 @@ class CivMap extends React.Component {
     super(props);
     this.state = {
       view: Util.hashToView(location.hash),
+      worldBorders: {},
       maps: {},
       cursorPos: L.latLng(0,0),
     };
   }
 
   componentWillMount() {
-    Util.getJSON(dataRoot+'meta/maps.json', function(maps) {
+    Util.getJSON(dataRoot+'meta/world-borders.json', (worldBorders) => {
+      this.setState({worldBorders: worldBorders});
+    });
+    Util.getJSON(dataRoot+'meta/maps.json', (maps) => {
       this.setState({maps: maps});
-    }.bind(this));
+    });
   }
 
   onbaselayerchange(o) {
@@ -64,14 +73,16 @@ class CivMap extends React.Component {
   }
 
   render() {
-    var activeWorld = Util.getWorld(this.props.worlds, this.state.view.worldName);
-    var activeWorldMaps = ((this.state.maps || {})[activeWorld.name] || []);
-    var maxBounds = null;
-    if (activeWorld.bounds) {
-      maxBounds = L.latLngBounds(Util.makeBounds(activeWorld.bounds));
-      maxBounds.extend(Util.radiusToBounds(activeWorld.radius));
-      activeWorldMaps.map(m => maxBounds.extend(Util.makeBounds(m.bounds)));
+    var activeWorldName = this.state.view.worldName;
+    var activeWorldMaps = ((this.state.maps || {})[activeWorldName] || []);
+    var maxBounds = L.latLngBounds();
+    if (activeWorldName in this.props.tilesMeta) {
+      maxBounds.extend(this.props.tilesMeta[activeWorldName].bounds);
     }
+    if (this.state.worldBorders[activeWorldName]) {
+      maxBounds.extend(Util.radiusToBounds(this.state.worldBorders[activeWorldName]));
+    }
+    activeWorldMaps.map(m => maxBounds.extend(m.bounds));
     var minZoom = -3;
     return (
       <RL.Map
@@ -89,32 +100,30 @@ class CivMap extends React.Component {
 
         <CoordsDisplay cursor={this.state.cursorPos} />
 
-        { activeWorld.bounds ? null :
+        { this.props.tilesMeta[activeWorldName] ? null :
             <Centered>
               <div className='message'>
                 <h1>Choose a world on the top right</h1>
-                <h2>
-                  { this.state.view.worldName ?
-                    'Unknown world "' + this.state.view.worldName + '"'
-                    : ''
-                  }
-                </h2>
+                { activeWorldName ?
+                  <h2>{'Unknown world "' + activeWorldName + '"'}</h2>
+                  : null
+                }
               </div>
             </Centered>
         }
 
         <RL.LayersControl position='topright'>
 
-          { this.props.worlds.map((world) =>
-              <RL.LayersControl.BaseLayer name={world.name}
-                  key={'tilelayer-' + world.name}
-                  checked={world.name === activeWorld.name}>
+          { Object.keys(this.props.tilesMeta).map((worldName) =>
+              <RL.LayersControl.BaseLayer name={worldName}
+                  key={'tilelayer-' + worldName}
+                  checked={worldName === activeWorldName}>
                 <RL.TileLayer
                   attribution={Util.attribution}
-                  url={dataRoot+'tiles/'+world.name+'/z{z}/{x},{y}.png'}
+                  url={dataRoot+'tiles/'+worldName+'/z{z}/{x},{y}.png'}
                   errorTileUrl={errorTileUrl}
                   tileSize={256}
-                  bounds={Util.makeBounds(world.bounds)}
+                  bounds={L.latLngBounds(this.props.tilesMeta[worldName].bounds)}
                   minZoom={minZoom}
                   maxNativeZoom={0}
                   continuousWorld={true}
@@ -131,20 +140,19 @@ class CivMap extends React.Component {
                   >
                 <RL.ImageOverlay
                   url={m.url}
-                  bounds={Util.makeBounds(m.bounds)}
+                  bounds={L.latLngBounds(m.bounds)}
                   opacity={.5}
                   />
               </RL.LayersControl.Overlay>
             )
           }
 
-          { activeWorld.radius ?
+          { this.state.worldBorders[activeWorldName] ?
               <RL.LayersControl.Overlay name='world border' checked={true}>
                 <RL.Circle
                   center={[0, 0]}
-                  radius={activeWorld.radius}
+                  radius={this.state.worldBorders[activeWorldName]}
                   color='#ff8888'
-                  stroke={true}
                   fill={false}
                   />
               </RL.LayersControl.Overlay>
@@ -161,14 +169,13 @@ class CivMap extends React.Component {
   }
 }
 
-Util.getJSON(dataRoot+'meta/worlds.json', function(worlds) {
-  worlds = worlds.filter((w) => 'bounds' in w); // ignore incomplete world data
+Util.getJSON(dataRoot+'meta/tiles.json', function(tilesMeta) {
   var loadingElement = document.getElementById('loading-screen');
   loadingElement.parentNode.removeChild(loadingElement);
   document.getElementById('civmap').style.display = 'block';
 
   ReactDOM.render(
-    <CivMap worlds={worlds} />,
+    <CivMap tilesMeta={tilesMeta} />,
     document.getElementById('civmap')
   );
 });
