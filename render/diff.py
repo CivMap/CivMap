@@ -5,8 +5,8 @@ from zipfile import ZipFile
 import cairo
 
 color_old_data      = 1., .0, .0
-color_initial_data  = .0, 1., .0
-color_new_data      = .0, .0, 1.
+color_initial_data  = .0, .0, .1
+color_new_data      = .0, 1., .0
 color_outdated_data = .4, .4, .4
 color_add_region    = 0,1,0, .5
 color_main_region   = 1,0,0, .5
