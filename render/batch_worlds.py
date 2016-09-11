@@ -7,7 +7,7 @@ from civ_shards import shard_names
 from diff import diff_worlds
 from merge_caches import merge_worlds
 from render import Renderer
-from render_utils import get_simple_block_color
+from render_utils import get_simple_block_color, print_missing_blocks
 from large_tiles import stitch_all
 from bounds import write_bounds
 
@@ -42,7 +42,7 @@ def main(*args):
         if 't' in new_flags or 'z' in new_flags:
             tiles_path, *args = args
         if 'b' in new_flags:
-            world_name, worlds_json_path, *args = args
+            world_name, tiles_json_path, *args = args
         flags += new_flags
 
     if args:
@@ -70,6 +70,7 @@ def main(*args):
         print('Found world', world_name, world_id)
 
         world_main = cache_main + '/' + world_name
+        world_tiles = tiles_path + '/' + world_name
         world_add = cache_add + '/' + world_id + '/' + overworld
 
         if 'd' in flags:
@@ -90,8 +91,20 @@ def main(*args):
                 print('ERROR', e.__class__.__name__, e)
                 continue
 
-        # TODO render tiles, zoom out, write bounds
+        if 't' in flags:
+            r = Renderer(world_main, get_simple_block_color)
+            r.render_tiles(world_tiles)
+            print_missing_blocks()
 
+        if 'z' in flags:
+            for i in range(3):
+                print('Creating zoomed-out tiles, level', -i-1)
+                stitch_all('%s/z%i' % (world_tiles, -i-1),
+                           '%s/z%i' % (world_tiles, -i))
+
+        if 'b' in flags:
+            print('Writing bounds to', tiles_json_path)
+            write_bounds(world_name, world_main, tiles_json_path)
 
 if __name__ == '__main__':
     sys.exit(main(*sys.argv[1:]))
