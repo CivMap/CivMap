@@ -14,7 +14,8 @@ from bounds import write_bounds
 overworld = 'Overworld (dimension 0)'
 
 def usage():
-    print('Args: <main path> [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>]')
+    print('Args: <main path> [-f <worlds filter>] [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>]')
+    print('-f   comma separated world names to operate on instead of all')
     print('-d   diff caches')
     print('-m   merge caches')
     print('-t   render tiles')
@@ -28,10 +29,14 @@ def main(*args):
 
     cache_main, *args = list(args)
     cache_add = tiles_path = world_name = worlds_json_path = ''
+    worlds_filter = ['spawn', 'ulca']
 
     flags = ''
     while len(args) > 0 and '-' == args[0][0]:
         new_flags, *args = args
+        if 'f' in new_flags:
+            new_filter, *args = args
+            worlds_filter += new_filter.split(',')
         if 'd' in new_flags or 'm' in new_flags:
             cache_add, *args = args
         if 't' in new_flags or 'z' in new_flags:
@@ -43,6 +48,8 @@ def main(*args):
     if args:
         print('Leftover args:', *args)
         return usage()
+
+    print('Ignored worlds:', ','.join(worlds_filter))
 
     batch_id = time.time()
 
@@ -57,7 +64,7 @@ def main(*args):
             continue
 
         world_name = shard_names[world_id]
-        if world_name in ('spawn', 'ulca'):
+        if world_name in worlds_filter:
             continue
 
         print('Found world', world_name, world_id)
