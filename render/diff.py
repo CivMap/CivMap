@@ -1,15 +1,16 @@
 import os
 import sys
+import time
 from zipfile import ZipFile
 
 import cairo
 
-color_old_data      = 1., .0, .0
-color_initial_data  = .0, .0, .1
-color_new_data      = .0, 1., .0
-color_outdated_data = .4, .4, .4
-color_add_region    = 0,1,0, .5
-color_main_region   = 1,0,0, .5
+color_main_data     = .5, .5, .5
+color_initial_data  = 0, 0, 1
+color_updated_data  = 0, 1, 0
+color_outdated_data = 1, 0, 0
+color_main_region   = color_main_data + (.5,)
+color_add_region    = color_initial_data + (.5,)
 
 region_size = 256
 zeroes = b'\0' * 17
@@ -39,11 +40,11 @@ def diff_zips(ctx, region_main, region_add):
             if col_add == zeroes:
                 if col_main == zeroes:
                     continue
-                color = color_old_data
+                color = color_main_data
             elif col_main == zeroes:
                 color = color_initial_data
             elif newer:
-                color = color_new_data
+                color = color_updated_data
             else:
                 color = color_outdated_data
 
@@ -64,6 +65,7 @@ def show_zip(ctx, region, color):
 def diff_worlds(out_path, cache_main, cache_add):
     regions = set(os.listdir(cache_main)) \
            .union(os.listdir(cache_add))
+    regions = [r for r in regions if r[-4:] == '.zip']
     min_x, min_z, max_x, max_z = get_bounds(regions)
     width = max_x - min_x
     height = max_z - min_z
@@ -71,10 +73,11 @@ def diff_worlds(out_path, cache_main, cache_add):
     ctx = cairo.Context(surf)
     ctx.translate(-min_x, -min_z)
 
-    n = len(regions)
-    for i, region in enumerate(regions):
-        if region[-4:] != '.zip': continue
-        print('%3i/%-3i' % (i, n), region)
+    last_progress = time.time()
+    for rn, region in enumerate(regions):
+        if last_progress + 3 < time.time():
+            last_progress += 3
+            print('diff: %i/%i regions' % (rn, len(regions)))
         rx, rz = map(int, region[:-4].split(','))
         region_main = cache_main + '/' + region
         region_add = cache_add + '/' + region
