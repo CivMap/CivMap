@@ -60,23 +60,23 @@ def main(*args):
 
     batch_id = time.time()
 
-    world_ids = set(os.listdir(cache_main))
+    world_names = set(os.listdir(cache_main))
     if cache_add:
-        world_ids = world_ids.union(os.listdir(cache_add))
+        world_names = world_names.union(
+            shard_names[w] for w in os.listdir(cache_add))
 
-    for world_id in world_ids:
-        if world_id not in shard_names:
-            if world_id not in shard_names.values():
-                print('Unknown shard id', world_id)
-            continue
-
-        world_name = shard_names[world_id]
+    for world_name in world_names:
         if only_worlds and world_name not in only_worlds:
             continue
         if world_name in ignored_worlds:
             continue
 
-        print('Found world', world_name, world_id)
+        if world_name not in shard_ids:
+            print('Unknown world', world_name)
+            continue
+        world_id = shard_ids[world_name]
+
+        print('Processing world', world_name, world_id)
 
         world_main = cache_main + '/' + world_name
         world_tiles = tiles_path + '/' + world_name
