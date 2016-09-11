@@ -89,7 +89,7 @@ def main(*args):
     if 'h' in flags:
         return usage()
 
-    if 'm' in flags:
+    if 'b' in flags:
         world_name, tiles_json_path, *args = args
 
     quiet = 'q' in flags
