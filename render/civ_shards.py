@@ -1,5 +1,5 @@
-# spawn: ba0cfdfb-4857-4efb-b516-0f5876d460d3
 shard_ids = {
+    'spawn': 'ba0cfdfb-4857-4efb-b516-0f5876d460d3',
     'abydos': '182702a7-ea3f-41de-a2d3-c046842d5e74',
     'drakontas': 'a7cbf239-6c11-4146-a715-ef0a9827b4c4',
     'eilon': 'a358b10c-7041-40c5-ac5e-db5483a9dfc2',
