@@ -14,13 +14,15 @@ from bounds import write_bounds
 overworld = 'Overworld (dimension 0)'
 
 def usage():
-    print('Args: <main path> [-f <worlds filter>] [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>]')
-    print('-f   comma separated world names to operate on instead of all')
+    print('Args: <main path> [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>] [-o <only,world,names>] [-i <ignored,world,names>]')
     print('-d   diff caches')
     print('-m   merge caches')
     print('-t   render tiles')
     print('-z   create zoomed-out tiles')
     print('-b   write tiles bounds')
+    print('-o   only operate on these worlds')
+    print('-i   ignored worlds')
+    print('-o and -i take comma separated world names')
     return 1
 
 def main(*args):
@@ -29,27 +31,32 @@ def main(*args):
 
     cache_main, *args = list(args)
     cache_add = tiles_path = world_name = worlds_json_path = ''
-    worlds_filter = ['spawn', 'ulca']
+    only_worlds = set()
+    ignored_worlds = ['spawn', 'ulca']
 
     flags = ''
     while len(args) > 0 and '-' == args[0][0]:
         new_flags, *args = args
-        if 'f' in new_flags:
-            new_filter, *args = args
-            worlds_filter += new_filter.split(',')
         if 'd' in new_flags or 'm' in new_flags:
             cache_add, *args = args
         if 't' in new_flags or 'z' in new_flags:
             tiles_path, *args = args
         if 'b' in new_flags:
             world_name, tiles_json_path, *args = args
+        if 'o' in new_flags:
+            new_only, *args = args
+            only_worlds = only_worlds.union(new_only.split(','))
+        if 'i' in new_flags:
+            new_ignored, *args = args
+            ignored_worlds += new_ignored.split(',')
         flags += new_flags
 
     if args:
         print('Leftover args:', *args)
         return usage()
 
-    print('Ignored worlds:', ','.join(worlds_filter))
+    print('Ignored worlds:', ','.join(ignored_worlds))
+    if only_worlds: print('and all except', ','.join(only_worlds))
 
     batch_id = time.time()
 
@@ -64,7 +71,9 @@ def main(*args):
             continue
 
         world_name = shard_names[world_id]
-        if world_name in worlds_filter:
+        if only_worlds and world_name not in only_worlds:
+            continue
+        if world_name in ignored_worlds:
             continue
 
         print('Found world', world_name, world_id)
