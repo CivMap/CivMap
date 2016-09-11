@@ -1,6 +1,6 @@
 import os
 import sys
-from shutil import copyfile
+from shutil import copy2, copystat
 from zipfile import ZipFile
 
 region_cols = 256*256
@@ -11,7 +11,7 @@ def merge_zips(zip_out, zip_top, zip_bottom, by_time=False):
         time_bottom = os.path.getmtime(zip_bottom)
         if time_top < time_bottom:
             zip_top, zip_bottom = zip_bottom, zip_top
-            print('time inversion', zip_out)
+            print('bottom is newer', zip_out)
 
     file_top = ZipFile(zip_top).open('data')
     file_bottom = ZipFile(zip_bottom).open('data')
@@ -28,6 +28,7 @@ def merge_zips(zip_out, zip_top, zip_bottom, by_time=False):
     zf = ZipFile(zip_out, 'w')
     zf.writestr('data', data)
     zf.close()
+    copystat(zip_top, zip_out)
 
 def merge_worlds(out_path, in_top, in_bottom, by_time=False):
     os.makedirs(out_path, exist_ok=True)
@@ -37,16 +38,16 @@ def merge_worlds(out_path, in_top, in_bottom, by_time=False):
         region_out = out_path + '/' + region
         region_top = in_top + '/' + region
         region_bottom = in_bottom + '/' + region
-        try:
-            if not os.path.isfile(region_top):
-                copyfile(region_bottom, region_out)
-            elif not os.path.isfile(region_bottom):
-                copyfile(region_top, region_out)
-            else:
-                merge_zips(region_out, region_top, region_bottom, by_time=by_time)
-        except OSError as e:
-            print('WARNING: did not merge region', region)
-            print(e)
+        if not os.path.isfile(region_top):
+            if os.path.isfile(region_bottom) \
+            and region_bottom != region_out:
+                copy2(region_bottom, region_out)
+        elif not os.path.isfile(region_bottom):
+            if os.path.isfile(region_top) \
+            and region_top != region_out:
+                copy2(region_top, region_out)
+        else:
+            merge_zips(region_out, region_top, region_bottom, by_time=by_time)
 
 def usage():
     print('Args: <out path> <in path 1> <over|under|time> <in path 2>')
