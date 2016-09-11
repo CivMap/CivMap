@@ -14,12 +14,13 @@ from bounds import write_bounds
 overworld = 'Overworld (dimension 0)'
 
 def usage():
-    print('Args: <main path> [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>] [-o <only,world,names>] [-i <ignored,world,names>]')
+    print('Args: <main path> [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>] [-k <batch key>] [-o <only,world,names>] [-i <ignored,world,names>]')
     print('-d   diff caches')
     print('-m   merge caches')
     print('-t   render tiles')
     print('-z   create zoomed-out tiles')
     print('-b   write tiles bounds')
+    print('-k   batch key')
     print('-o   only operate on these worlds')
     print('-i   ignored worlds')
     print('-o and -i take comma separated world names')
@@ -30,7 +31,7 @@ def main(*args):
         return usage()
 
     cache_main, *args = list(args)
-    cache_add = tiles_path = world_name = worlds_json_path = ''
+    cache_add = tiles_path = world_name = worlds_json_path = batch_key = ''
     only_worlds = set()
     ignored_worlds = ['spawn', 'ulca']
 
@@ -43,6 +44,8 @@ def main(*args):
             tiles_path, *args = args
         if 'b' in new_flags:
             world_name, tiles_json_path, *args = args
+        if 'k' in new_flags:
+            batch_key, *args = args
         if 'o' in new_flags:
             new_only, *args = args
             only_worlds = only_worlds.union(new_only.split(','))
@@ -58,7 +61,7 @@ def main(*args):
     print('Ignored worlds:', ','.join(ignored_worlds))
     if only_worlds: print('and all except', ','.join(only_worlds))
 
-    batch_id = time.time()
+    batch_id = str(time.time()) + batch_key
 
     world_names = set(os.listdir(cache_main))
     if cache_add:
