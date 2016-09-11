@@ -67,10 +67,10 @@ class Renderer(object):
 
 
 def usage():
-    print('Args: [-h] [-q] [-t] [-z] [-m <world name> <worlds.json path>] <tiles path> <world cache path>')
+    print('Args: [-h] [-q] [-t] [-z] [-b <world name> <worlds.json path>] <tiles path> <world cache path>')
     print('-t   render tiles')
     print('-z   create zoomed-out tiles')
-    print('-m   write tiles metadata')
+    print('-b   write tiles metadata')
     print('-q   do not print activity messages')
     print('-h   show this help and quit')
     print('you can pass multiple flags per arg: -ztm -q')
@@ -90,7 +90,7 @@ def main(*args):
         return usage()
 
     if 'm' in flags:
-        world_name, worlds_json_path, *args = args
+        world_name, tiles_json_path, *args = args
 
     quiet = 'q' in flags
 
@@ -109,10 +109,10 @@ def main(*args):
             stitch_all('%s/z%i' % (tiles_path, -i-1),
                        '%s/z%i' % (tiles_path, -i))
 
-    if 'm' in flags:
+    if 'b' in flags:
         if not quiet:
-            print('Writing bounds to', worlds_json_path)
-        write_bounds(world_name, tiles_path+'/z0', worlds_json_path)
+            print('Writing bounds to', tiles_json_path)
+        write_bounds(world_name, tiles_path+'/z0', tiles_json_path)
 
     if not quiet:
         print_missing_blocks()

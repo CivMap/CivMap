@@ -3,7 +3,9 @@ zip format: <cache_path>/<x>,<z>.zip
 tiles format: <tiles_path>/<x>,<z>.png
 json format:
 {
-    "<world_name>": [[<north>, <west>], [<south>, <east>]],
+    "<world_name>": {
+        "bounds": [[<north>, <west>], [<south>, <east>]]
+    },
     ...
 }
 """
