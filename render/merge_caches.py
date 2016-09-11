@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from shutil import copy2, copystat
 from zipfile import ZipFile
 
@@ -32,9 +33,14 @@ def merge_zips(zip_out, zip_top, zip_bottom, by_time=False):
 
 def merge_worlds(out_path, in_top, in_bottom, by_time=False):
     os.makedirs(out_path, exist_ok=True)
-    for region in set(os.listdir(in_top)) \
-               .union(os.listdir(in_bottom)):
-        if region[-4:] != '.zip': continue
+    regions = set(os.listdir(in_top)) \
+           .union(os.listdir(in_bottom))
+    regions = [r for r in regions if r[-4:] == '.zip']
+    last_progress = time.time()
+    for rn, region in enumerate(regions):
+        if last_progress + 3 < time.time():
+            last_progress += 3
+            print('merge: %i/%i regions' % (rn, len(regions)))
         region_out = out_path + '/' + region
         region_top = in_top + '/' + region
         region_bottom = in_bottom + '/' + region
