@@ -7,6 +7,7 @@ import cairo
 
 color_main_data     = .5, .5, .5
 color_initial_data  = 0, 0, 1
+color_unchanged     = .5, .5, 0
 color_updated_data  = 0, 1, 0
 color_outdated_data = 1, 0, 0
 color_main_region   = color_main_data + (.5,)
@@ -43,6 +44,8 @@ def diff_zips(ctx, region_main, region_add):
                 color = color_main_data
             elif col_main == zeroes:
                 color = color_initial_data
+            elif col_main == col_add:
+                color = color_unchanged
             elif newer:
                 color = color_updated_data
             else:
