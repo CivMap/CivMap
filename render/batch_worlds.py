@@ -3,7 +3,7 @@ import os
 import sys
 import time
 
-from civ_shards import shard_names
+from civ_shards import shard_ids, shard_names
 from diff import diff_worlds
 from merge_caches import merge_worlds
 from render import Renderer
@@ -11,7 +11,12 @@ from render_utils import get_simple_block_color, print_missing_blocks
 from large_tiles import stitch_all
 from bounds import write_bounds
 
-overworld = 'Overworld (dimension 0)'
+def get_cache_path(world_path):
+    entries = os.listdir(world_path)
+    if any(filter(lambda f: f[-4:] == '.zip', entries)):
+        return world_path
+    dimensions = sorted(e for e in entries if '(dimension ' in e)
+    return world_path + '/' + dimensions[0]
 
 def usage():
     print('Args: <main path> [-[d][m] <new data path>] [-[t][z] <tiles path>] [-b <world name> <worlds.json path>] [-k <batch key>] [-o <only,world,names>] [-i <ignored,world,names>]')
@@ -66,7 +71,8 @@ def main(*args):
     world_names = set(os.listdir(cache_main))
     if cache_add:
         world_names = world_names.union(
-            shard_names[w] for w in os.listdir(cache_add))
+            shard_names[w] for w in os.listdir(cache_add)
+            if w in shard_names)
 
     for world_name in world_names:
         if only_worlds and world_name not in only_worlds:
@@ -83,7 +89,12 @@ def main(*args):
 
         world_main = cache_main + '/' + world_name
         world_tiles = tiles_path + '/' + world_name
-        world_add = cache_add + '/' + world_id + '/' + overworld
+        if 'd' in flags or 'm' in flags:
+            try:
+                world_add = get_cache_path(cache_add + '/' + world_id)
+            except FileNotFoundError:
+                print('ERROR', e.__class__.__name__, e)
+                continue
 
         if 'd' in flags:
             diff_img = 'diffs/diff-%s/diff-%s.png' % (batch_id, world_name)
@@ -109,10 +120,13 @@ def main(*args):
             print_missing_blocks()
 
         if 'z' in flags:
-            for i in range(3):
-                print('Creating zoomed-out tiles, level', -i-1)
-                stitch_all('%s/z%i' % (world_tiles, -i-1),
-                           '%s/z%i' % (world_tiles, -i))
+            try:
+                for i in range(3):
+                    print('Creating zoomed-out tiles, level', -i-1)
+                    stitch_all('%s/z%i' % (world_tiles, -i-1),
+                               '%s/z%i' % (world_tiles, -i))
+            except IndexError as e:
+                print('ERROR', e.__class__.__name__, e)
 
         if 'b' in flags:
             print('Writing bounds to', tiles_json_path)
