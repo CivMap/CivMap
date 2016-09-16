@@ -58,12 +58,14 @@ class CivMap extends React.Component {
   }
 
   onbaselayerchange(o) {
+    if (!o.name) return;
     this.state.view.worldName = o.name;
     this.setState({view: this.state.view});
     this.updateHash(o);
   }
 
   updateHash(o) {
+    if (!this.state.view.worldName) return;
     const stateUrl = '#' + Util.viewToHash(o.target, this.state.view.worldName);
     document.title = Util.viewToTitle(o.target, this.state.view.worldName);
     history.replaceState({}, document.title, stateUrl);
@@ -76,7 +78,7 @@ class CivMap extends React.Component {
   render() {
     var activeWorldName = this.state.view.worldName;
     var activeWorldMaps = ((this.state.maps || {})[activeWorldName] || []);
-    var maxBounds = L.latLngBounds();
+    var maxBounds = L.latLngBounds([0,0], [0,0]);
     if (activeWorldName in this.props.tilesMeta) {
       maxBounds.extend(this.props.tilesMeta[activeWorldName].bounds);
     }
