@@ -125,7 +125,7 @@ def main(*args):
                     print('Creating zoomed-out tiles, level', -i-1)
                     stitch_all('%s/z%i' % (world_tiles, -i-1),
                                '%s/z%i' % (world_tiles, -i))
-            except IndexError as e:
+            except (FileNotFoundError, IndexError) as e:
                 print('ERROR', e.__class__.__name__, e)
 
         if 'b' in flags:

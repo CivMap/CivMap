@@ -16,3 +16,20 @@ shard_ids = {
 }
 
 shard_names = {i: n for n, i in shard_ids.items()}
+
+shards_sorted = [
+    'spawn',
+    'abydos',
+    'drakontas',
+    'eilon',
+    'isolde',
+    'naunet',
+    'ovid',
+    'padzahr',
+    'rokko',
+    'sheol',
+    'tigrillo',
+    'tjikko',
+    'ulca',
+    'volans',
+]
