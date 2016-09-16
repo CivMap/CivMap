@@ -22,9 +22,22 @@ function xz(x, z) {
   return [z, x];
 }
 
+function intCoords(point) {
+  var x = parseInt(point.lng);
+  var z = parseInt(point.lat);
+  if (point.lng < 0) x -= 1;
+  if (point.lat < 0) z -= 1;
+  return [z, x];
+}
+
 function viewToHash(leaf, worldName) {
-  var center = leaf.getCenter();
-  return  '' + worldName + '/' + center.lng + 'x/' + center.lat + 'z/' + leaf.getZoom() + 'zoom';
+  var [z, x] = intCoords(leaf.getCenter());
+  return  '' + worldName + '/' + x + 'x/' + z + 'z/' + leaf.getZoom() + 'zoom';
+}
+
+function viewToTitle(leaf, worldName) {
+  var [z, x] = intCoords(leaf.getCenter());
+  return worldName + ' at ' + x + ',' + z + ' - Civcraft 3.0 Maps'
 }
 
 function hashToView(hash) {
@@ -48,7 +61,9 @@ module.exports = {
   attribution: attribution,
   getJSON: getJSON,
   xz: xz,
+  intCoords: intCoords,
   viewToHash: viewToHash,
+  viewToTitle: viewToTitle,
   hashToView: hashToView,
   radiusToBounds: radiusToBounds,
   getWorld: getWorld,

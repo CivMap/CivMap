@@ -31,10 +31,7 @@ class Centered extends React.Component {
 
 class CoordsDisplay extends React.Component {
   render() {
-    var x = parseInt(this.props.cursor.lng);
-    var z = parseInt(this.props.cursor.lat);
-    if (this.props.cursor.lng < 0) x -= 1;
-    if (this.props.cursor.lat < 0) z -= 1;
+    const [z, x] = Util.intCoords(this.props.cursor);
     return <div className='coords-display control-box leaflet-control leaflet-control-layers'>
       {'X ' + x + ' ' + z + ' Z'}</div>;
   }
@@ -68,7 +65,8 @@ class CivMap extends React.Component {
 
   updateHash(o) {
     const stateUrl = '#' + Util.viewToHash(o.target, this.state.view.worldName);
-    history.replaceState({}, '', stateUrl);
+    document.title = Util.viewToTitle(o.target, this.state.view.worldName);
+    history.replaceState({}, document.title, stateUrl);
   }
 
   onmousemove(o) {
