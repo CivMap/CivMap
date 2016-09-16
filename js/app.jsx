@@ -31,8 +31,10 @@ class Centered extends React.Component {
 
 class CoordsDisplay extends React.Component {
   render() {
-    const x = parseInt(this.props.cursor.lng);
-    const z = parseInt(this.props.cursor.lat);
+    var x = parseInt(this.props.cursor.lng);
+    var z = parseInt(this.props.cursor.lat);
+    if (this.props.cursor.lng < 0) x -= 1;
+    if (this.props.cursor.lat < 0) z -= 1;
     return <div className='coords-display control-box leaflet-control leaflet-control-layers'>
       {'X ' + x + ' ' + z + ' Z'}</div>;
   }
