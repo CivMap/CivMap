@@ -92,7 +92,7 @@ def main(*args):
         if 'd' in flags or 'm' in flags:
             try:
                 world_add = get_cache_path(cache_add + '/' + world_id)
-            except FileNotFoundError:
+            except FileNotFoundError as e:
                 print('ERROR', e.__class__.__name__, e)
                 continue
 
